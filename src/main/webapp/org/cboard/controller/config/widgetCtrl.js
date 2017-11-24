@@ -2,11 +2,12 @@
  * Created by yfyuan on 2016/8/12.
  */
 'use strict';
-cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal, dataService, ModalUtils, updateService, $filter, chartService, $timeout) {
+cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $uibModal, dataService, ModalUtils, updateService, $filter, chartService, $timeout) {
 
         var translate = $filter('translate');
         var updateUrl = "dashboard/updateWidget.do";
         $scope.liteMode = false;
+        $scope.tab = 'preview_widget2';
         //图表类型初始化
         $scope.chart_types = [
             {
@@ -269,6 +270,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         $scope.filterSelect = {};
         $scope.verify = {widgetName: true};
         $scope.params = [];
+        $scope.curDataset;
 
 
         var loadDataset = function (callback) {
@@ -280,9 +282,6 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
             });
         };
         loadDataset();
-        // $http.get("dashboard/getDatasetCategoryList.do").success(function (response) {
-        //     $scope.datasetCategoryList = response;
-        // });
 
         $http.get("dashboard/getDatasourceList.do").success(function (response) {
             $scope.datasourceList = response;
@@ -292,9 +291,23 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                     $scope.editWgt(_.find($scope.widgetList, function (w) {
                         return w.id == $stateParams.id;
                     }));
+                } else if ($stateParams.id == null && $stateParams.datasetId) {
+                    $scope.newWgt({datasetId: parseInt($stateParams.datasetId)});
+                    $scope.loadData();
                 }
             });
         });
+
+        $scope.getCurDatasetName = function() {
+            if ($scope.customDs) {
+                return translate('CONFIG.WIDGET.NEW_QUERY');
+            } else {
+                var curDS = _.find($scope.datasetList, function (ds) {
+                    return ds.id == $scope.curWidget.datasetId;
+                });
+                return curDS ? curDS.name : null;
+            }
+        }
 
         $scope.datasetGroup = function (item) {
             return item.categoryName;
@@ -318,6 +331,11 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                 });
             });
         };
+
+        $scope.viewExp = function(exp) {
+            ModalUtils.alert({title: translate('CONFIG.COMMON.CUSTOM_EXPRESSION') + ': ' + exp.alias, body: exp.exp},
+                "modal-info", 'lg');
+        }
 
         $scope.editExp = function (col) {
             var columnObjs = schemaToSelect($scope.schema);
@@ -347,38 +365,28 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                 windowTemplateUrl: 'org/cboard/view/util/modal/window.html',
                 backdrop: false,
                 size: 'lg',
+                scope: $scope,
                 controller: function ($scope, $uibModalInstance) {
                     $scope.data = data;
                     $scope.curWidget = curWidget;
                     $scope.columnObjs = columnObjs;
                     $scope.aggregate = aggregate;
+                    $scope.expressions = curWidget.expressions;
                     $scope.alerts = [];
                     $scope.close = function () {
                         $uibModalInstance.close();
                     };
                     var columns = _.map(columnObjs, function (o) { return o.column; });
-                    $scope.expAceOpt = expEditorOptions(columns, aggregate);
+                    $scope.expAceOpt = expEditorOptions($scope.selects, aggregate, function(_editor) {
+                        $scope.expAceEditor = _editor;
+                        $scope.expAceSession = _editor.getSession();
+                        _editor.focus();
+                    });
                     $scope.addToken = function (str, agg) {
-                        var tc = document.getElementById("expression_area");
-                        var tclen = $scope.data.expression.length;
-                        tc.focus();
-                        var selectionIdx = 0;
-                        if (typeof document.selection != "undefined") {
-                            document.selection.createRange().text = str;
-                            selectionIdx = str.length - 1;
-                        }
-                        else {
-                            var a = $scope.data.expression.substr(0, tc.selectionStart);
-                            var b = $scope.data.expression.substring(tc.selectionStart, tclen);
-                            $scope.data.expression = a + str;
-                            selectionIdx = $scope.data.expression.length - 1;
-                            $scope.data.expression += b;
-                        }
-                        if (!agg) {
-                            selectionIdx++;
-                        }
-                        tc.selectionStart = selectionIdx;
-                        tc.selectionEnd = selectionIdx;
+                        var editor = $scope.expAceEditor;
+                        editor.session.insert(editor.getCursorPosition(), str);
+                        editor.focus();
+                        if (agg) editor.getSelection().moveCursorLeft();
                     };
                     $scope.verify = function () {
                         $scope.alerts = [];
@@ -393,6 +401,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                             ModalUtils.alert(translate('CONFIG.WIDGET.ALIAS') + translate('COMMON.NOT_EMPTY'), "modal-warning", "lg");
                             return;
                         }
+                        $scope.data.expression = $scope.expAceSession.getValue();
                         ok($scope.data);
                         $uibModalInstance.close();
                     };
@@ -414,8 +423,11 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
             cleanPreview();
         };
 
-        $scope.newWgt = function () {
+        $scope.newWgt = function (curWidget) {
             $scope.curWidget = {};
+            if (curWidget) {
+                $scope.curWidget = curWidget;
+            }
             $scope.curWidget.config = {};
             $scope.curWidget.config.option = {};
             $scope.curWidget.expressions = [];
@@ -454,7 +466,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                     return ds.id == $scope.curWidget.datasetId;
                 }).data.expressions;
                 var exp = _.find(dsExp, function (e) {
-                    return e.id && o.id == e.id;
+                    return (e.id && o.id == e.id) || o.alias == e.alias;
                 });
                 return !_.isUndefined(exp);
             }
@@ -1115,6 +1127,16 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
             return !result;
         };
 
+        $scope.refreshSchema = function () {
+            loadDataset(function () {
+                $scope.curWidget.expressions = [];
+                loadDsExpressions();
+                $scope.curWidget.filterGroups = [];
+                loadDsFilterGroups();
+                buildSchema();
+            });
+        }
+
         var buildSchema = function () {
             var loadFromDataset = false;
             if (!$scope.customDs) {
@@ -1214,6 +1236,7 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
                 } else if (type == 'select' || type == 'measure') {
                     list[index] = {col: item.column, aggregate_type: 'sum'};
                 }
+                $scope.onDragCancle();
             },
             toSelect: function (list, index, item, type) {
                 if (type == 'col') {
@@ -1488,6 +1511,8 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
 
         $scope.editNode = function () {
             if (!checkTreeNode("edit")) return;
+            var selectedNode = jstree_GetSelectedNodes(treeID)[0];
+            $state.go('config.widget', {id: selectedNode.id}, {notify: false, inherit: false});
             $scope.editWgt(getSelectedWidget());
         };
 
@@ -1599,6 +1624,33 @@ cBoard.controller('widgetCtrl', function ($scope, $stateParams, $http, $uibModal
         }
         /** js tree related End... **/
 
+        $scope.targetHighlight = {
+            row: false, column: false, value: false, filter: false
+        };
+
+        $scope.onDragstart = function (type) {
+            switch (type) {
+                case 'dimension':
+                    $scope.targetHighlight = {row: true, column: true, value: false, filter: true};
+                    break;
+                case 'measure':
+                case 'exp':
+                    $scope.targetHighlight = {row: false, column: false, value: true, filter: false};
+                    break;
+                case 'filterGroup':
+                    $scope.targetHighlight.filter = true;
+                    break;
+                case 'select':
+                    $scope.targetHighlight = {row: true, column: true, value: true, filter: true};
+                    break;
+            }
+        };
+
+        $scope.onDragCancle = function () {
+            $timeout($scope.targetHighlight = {
+                row: false, column: false, value: false, filter: false
+            }, 500);
+        };
 
         /** Ace Editor Starer... **/
         $scope.queryAceOpt = datasetEditorOptions();
