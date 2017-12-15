@@ -415,6 +415,10 @@
       "JSON_TEXT": "Json Text",
       "PAGE_INDEX": "Page Index",
       "PAGE_SIZE": "Page Size"
+    },
+    "GRMP":{
+      "GRMP_SERVERS": "GRMP Servers",
+      "BIZ_TABLE_NAME": "Biz Table Name"
     }
   },
   "CROSS_TABLE":{
