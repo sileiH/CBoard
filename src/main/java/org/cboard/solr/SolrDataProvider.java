@@ -180,7 +180,7 @@ public class SolrDataProvider extends DataProvider implements Aggregatable, Init
 
     @Override
     public String[][] getData() throws Exception {
-        return null;
+        return getSolrData();
     }
 
     @Override
