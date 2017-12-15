@@ -6,6 +6,7 @@
                 <div class="box-header with-border">
                     <i class="fa fa-cubes"></i> <h3 class="box-title"> {{'CONFIG.DATASET.DATASET'|translate}}</h3>
                     <div class="box-tools pull-right">
+                        <i class="fa fa-info toolbar-icon" ng-click="showInfo()" title="{{'COMMON.INFORMATION'|translate}}"></i>&nbsp;&nbsp;
                         <i class="fa fa-plus toolbar-icon" ng-click="newDs()" title="{{'COMMON.NEW'|translate}}"></i>&nbsp;&nbsp;
                         <i class="fa fa-copy toolbar-icon" ng-click="copyNode()" title="{{'COMMON.COPY'|translate}}"></i>&nbsp;&nbsp;
                         <i class="fa fa-edit toolbar-icon" ng-click="editNode()" title="{{'COMMON.EDIT'|translate}}"></i>&nbsp;&nbsp;
@@ -69,20 +70,22 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <div class="col-sm-offset-2 col-sm-2">
-                                            <button type="button" class="btn btn-block btn-success"
-                                                    ng-click="loadData()">{{'CONFIG.DATASET.LOAD_DATA'|translate}}
-                                            </button>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-5 col-md-3 col-lg-2">
-                                            <label>
-                                                <input type="checkbox" ng-model="loadFromCache"> {{'CONFIG.WIDGET.FROM_CACHE'|translate}}
-                                            </label>
+                                        <div class="col-sm-offset-2 col-sm-2 col-md-3">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-success" ng-click="loadData()">{{'CONFIG.DATASET.LOAD_DATA'|translate}}</button>
+                                                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                    <span class="caret"></span>
+                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li ng-click="loadData(true)"><a>{{'CONFIG.WIDGET.FROM_CACHE'|translate}}</a></li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" ng-show="selects">
+                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">
@@ -94,7 +97,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" ng-show="selects">
+                            <div class="row" ng-show="curDataset.data.schema">
                                 <div class="col-md-6">
                                     <div class="form-control" style="min-height: 200px;height: auto;padding: 0px; border: 2px dashed #d2d6de">
                                         <span ng-repeat="o in selects"

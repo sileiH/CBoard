@@ -2,7 +2,9 @@
  * Created by yfyuan on 2016/8/2.
  */
 'use strict';
-cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, $filter, updateService, $uibModal, $timeout, dataService, $state, $window) {
+cBoard.controller('boardCtrl',
+    function ($rootScope, $scope, $http, ModalUtils, $filter, updateService, $uibModal,
+              $timeout, dataService, $state, $window, $stateParams) {
     var translate = $filter('translate');
 
     $scope.optFlag = 'none';
@@ -17,7 +19,7 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
     var updateUrl = "dashboard/updateBoard.do";
 
     var getBoardList = function () {
-        $http.get("dashboard/getBoardList.do").success(function (response) {
+        return $http.get("dashboard/getBoardList.do").success(function (response) {
             $scope.boardList = response;
             originalData = jstree_CvtVPath2TreeData(
                 $scope.boardList.map(function (ds) {
@@ -128,7 +130,7 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
         $scope.$emit("boardChange");
     };
 
-    getBoardList();
+    var boardListPromise = getBoardList();
     getCategoryList();
     getDatasetList();
 
@@ -188,6 +190,12 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
                 $scope.optFlag == 'none';
             });
         });
+    };
+
+    $scope.showInfo = function () {
+        if (!checkTreeNode("info")) return;
+        var content = getSelectedBoard();
+        ModalUtils.info(content, "modal-info", "lg");
     };
 
     $scope.widgetGroup = function (item) {
@@ -259,33 +267,36 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
             return;
         }
         ModalUtils.confirm(translate("COMMON.CONFIRM_SAVE_BEFORE_PREVIEW"), "modal-warning", "lg", function () {
-            var newTab = $window.open('', '_blank');
-            $scope.saveBoard()
+            $scope.saveBoard(false)
                 .then(function () {
                     if (!Id) {
                         Id = $scope.curBoard.id;
                     }
-                    var url = $state.href('mine.view', {id: Id});
-                    newTab.location.href = url;
+                    $state.go('mine.view', {id: Id});
                 });
         });
     };
 
-    $scope.saveBoard = function () {
+    $scope.saveBoard = function (notify) {
         if (!validate()) {
             return;
         }
         clearDirty();
+        var callBack = saveBoardCallBack;
+        if (notify == false) {
+            callBack = function() {};
+        }
         if ($scope.optFlag == 'new') {
-            return $http.post("dashboard/saveNewBoard.do", {json: angular.toJson($scope.curBoard)}).success(saveBoardCallBack);
+            return $http.post("dashboard/saveNewBoard.do", {json: angular.toJson($scope.curBoard)}).success(callBack);
         } else if ($scope.optFlag == 'edit') {
-            return $http.post(updateUrl, {json: angular.toJson($scope.curBoard)}).success(saveBoardCallBack);
+            return $http.post(updateUrl, {json: angular.toJson($scope.curBoard)}).success(callBack);
         }
     };
 
     var clearDirty = function () {
         _.each($scope.curBoard.layout.rows, function(row){
             _.each(row.widgets, function(widget){
+                delete widget.sourceId;
                 if(!_.isUndefined(widget.relations)){
                     delete widget.relations.sourceFields;
                     _.each(widget.relations.relations, function(relation){
@@ -294,7 +305,7 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
                 }
             });
         })
-    }
+    };
 
     $scope.editParam = function (row, index) {
         var status = {i: 0};
@@ -435,6 +446,8 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
     $scope.editNode = function () {
         if (!checkTreeNode("edit")) return;
         $scope.editBoard(getSelectedBoard());
+        var selectedNode = jstree_GetSelectedNodes(treeID)[0];
+        $state.go('config.board', {boardId: selectedNode.id}, {notify: false});
     };
 
     $scope.deleteNode = function () {
@@ -541,7 +554,7 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
             }
             e.relations.sourceFields = fields;
         });
-    }
+    };
 
     $scope.changeTargetParam = function (e, boardId, index) {
         if (!e.relations) {
@@ -573,12 +586,12 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
     $scope.addWidgetRelation = function(widget){
         widget.relations.relations.push({"type":"widget"});
         $('div.newRelation').addClass('hideOperate');
-    }
+    };
 
     $scope.addBoardRelation = function(widget){
         widget.relations.relations.push({"type":"board"});
         $('div.newRelation').addClass('hideOperate');
-    }
+    };
 
     $scope.changeActive = function(rowIndex, widgetIndex, index){
         var prefixId = rowIndex+"_"+widgetIndex+"_";
@@ -593,5 +606,17 @@ cBoard.controller('boardCtrl', function ($rootScope, $scope, $http, ModalUtils, 
         }
         $("#"+prefixId+index+"_"+"tab").addClass('active');
         $("#"+prefixId+index+"_"+"content").addClass('active');
+    };
+
+    var paramBoardId = $stateParams.boardId;
+    if (paramBoardId) {
+        boardListPromise.then(function () {
+            var board = _.find($scope.boardList, function (ds) {
+                return ds.id == paramBoardId;
+            });
+            if (board) {
+                $scope.editBoard(board)
+            }
+        });
     }
 });
