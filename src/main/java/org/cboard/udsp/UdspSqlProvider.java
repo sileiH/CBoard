@@ -142,7 +142,7 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
 
     @Override
     public void test() throws Exception {
-        getData();
+        getColumnInfos();
     }
 
     private List<Map<String, String>> getResults(SqlRequest request) {
