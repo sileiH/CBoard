@@ -34,7 +34,7 @@
                      style="height: 40px;display: inline-block;vertical-align: middle;"></div>
             </div>
             <div class="col-md-{{widget.width}}" ng-repeat="widget in row.widgets" ng-init="widgetIndex = $index">
-                <div class="box box-primary collapsed-box"
+                <div class="box box-primary"
                      style="border-left: 1px solid #d2d6de; border-right: 1px solid #d2d6de">
                     <div class="box-header" dnd-draggable="widget" dnd-type="'w'"
                          nd-effect-allowed="move"
@@ -42,12 +42,12 @@
                          style="cursor:move">
                         {{widget.name}}
                         <div class="box-tools pull-right">
-                            <button ng-if="!widget.relation" type="button" class="btn btn-box-tool"
+                            <button ng-if="!widget.relations" type="button" class="btn btn-box-tool"
                                     title="{{'COMMON.ADD_RELATIONS'|translate}}"
                                     ng-click="addRelations(widget)">
                                 <i class="fa fa-link"></i>
                             </button>
-                            <button ng-if="widget.relation" type="button" class="btn btn-box-tool"
+                            <button ng-if="widget.relations" type="button" class="btn btn-box-tool"
                                     title="{{'COMMON.DEL_RELATIONS'|translate}}"
                                     ng-click="delRelations(widget)">
                                 <i class="fa fa-unlink"></i>

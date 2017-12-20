@@ -8,6 +8,24 @@
     color: black;
 }
 
+.box-header .box-title {
+    display: inline-block;
+    margin: 0;
+    line-height: 1;
+}
+
+.box-body {
+    /*padding: 5px;*/
+}
+
+.box-header {
+    padding: 11px 10px;
+}
+
+.panel-body {
+    padding: 9px 4px;
+}
+
 .toolbar-icon {
     cursor: pointer;
     font-size: large;
@@ -151,20 +169,14 @@
 .cHeatMapCalendar.disabled{ background-image: url(../imgs/heatMapCalendar.png); }
 .cHeatMapTable{ background-image: url(../imgs/heatMapTable-active.png); }
 .cHeatMapTable.disabled{ background-image: url(../imgs/heatMapTable.png); }
-.cMarkLineMap{ background-image: url(../imgs/markLineMap-active.png);}
-.cMarkLineMap.disabled{ background-image: url(../imgs/markLineMap.png);}
 .cLiquidFill{ background-image: url(../imgs/liquidFill-active.png); }
 .cLiquidFill.disabled{ background-image: url(../imgs/liquidFill.png); }
-.cHeatMap{ background-image: url(../imgs/heatMap-active.png); }
-.cHeatMap.disabled{ background-image: url(../imgs/heatMap.png); }
-.cMarkLineMapBmap{ background-image: url(../imgs/markLineMapBmap-active.png); }
-.cMarkLineMapBmap.disabled{ background-image: url(../imgs/markLineMapBmap.png);}
-.cHeatMapBmap{ background-image: url(../imgs/heatMapBmap-active.png); }
-.cHeatMapBmap.disabled{ background-image: url(../imgs/heatMapBmap.png); }
-.cScatterMap{ background-image: url(../imgs/scatterMap-active.png); }
-.cScatterMap.disabled{ background-image: url(../imgs/scatterMap.png); }
-.cScatterMapBmap{ background-image: url(../imgs/scatterMapBmap-active.png); }
-.cScatterMapBmap.disabled{ background-image: url(../imgs/scatterMapBmap.png);}
+.cChinaMap{ background-image: url(../imgs/chinaMap-active.png); }
+.cChinaMap.disabled{ background-image: url(../imgs/chinaMap.png); }
+.cChinaMapBmap{ background-image: url(../imgs/chinaMapBmap-active.png); }
+.cChinaMapBmap.disabled{ background-image: url(../imgs/chinaMapBmap.png); }
+.cRelation{ background-image: url(../imgs/relation-active.png); }
+.cRelation.disabled{ background-image: url(../imgs/relation.png); }
 
 .chart-type a.active{
     background-color: #FFF;
@@ -729,4 +741,10 @@ treecontrol.tree-dark {
     border-radius: 4px 4px 0 0;
     -webkit-box-shadow: none;
     box-shadow: none;
+}
+
+.highlight {
+    -webkit-transition: border linear 7.2s,-webkit-box-shadow linear -2.5s;
+    border-color: rgba(47, 165, 255, 0.75);
+    -webkit-box-shadow: 0 0 4px rgba(54, 131, 255, 0.86);
 }

@@ -88,7 +88,7 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
         widget.render = function (content, optionFilter, scope) {
             // 百度地图特殊处理
             var charType = injectFilter(widget.widget).data.config.chart_type;
-            if(charType == 'markLineMapBmap' || charType == 'heatMapBmap' || charType == 'scatterMapBmap'){
+            if(charType == 'chinaMapBmap'){
                 chartService.render(content, injectFilter(widget.widget).data, optionFilter, scope, reload);
                 widget.loading = false;
             } else {
@@ -100,7 +100,11 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
             widget.realTimeOption = {optionFilter: optionFilter, scope: scope};
         };
         widget.modalRender = function (content, optionFilter, scope) {
-            widget.modalRealTimeTicket = chartService.render(content, injectFilter(widget.widget).data, optionFilter, scope);
+            widget.modalLoading = true;
+            widget.modalRealTimeTicket = chartService.render(content, injectFilter(widget.widget).data, optionFilter, scope)
+                .then(function () {
+                    widget.modalLoading = false;
+                });
             widget.modalRealTimeOption = {optionFilter: optionFilter, scope: scope};
         };
     };
@@ -135,8 +139,9 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
             $(".forExcel").click();
             aForExcel.remove();
             $scope.exportStatus = false;
-        }).error(function (data, status, headers, config) {
+        }).error(function (data, status, headers, config, statusText) {
             $scope.exportStatus = false;
+            ModalUtils.alert("Export error, please ask admin to check server side log.", "modal-warning", "lg");
         });
     };
 
@@ -151,14 +156,35 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
         paramToFilter();
     };
 
+    var initDsReloadStatus = function(reload) {
+        var dsReloadStatus = new Map();
+        _.each($scope.board.layout.rows, function(row) {
+            _.each(row.widgets, function (widget) {
+                var dataSetId = widget.widget.data.datasetId;
+                if (dataSetId != undefined) {
+                    dsReloadStatus.set(dataSetId, reload);
+                }
+            });
+        });
+        return dsReloadStatus;
+    };
+
     var loadWidget = function (reload) {
         paramToFilter();
+        var dsReloadStatus = initDsReloadStatus(reload);
         _.each($scope.board.layout.rows, function (row) {
             _.each(row.widgets, function (widget) {
                 if (!_.isUndefined(widget.hasRole) && !widget.hasRole) {
                     return;
                 }
-                buildRender(widget, reload);
+                var dataSetId = widget.widget.data.datasetId;
+                var needReload = reload;
+                // avoid repeat load offline dataset data
+                if (dataSetId != undefined && reload) {
+                    var needReload = dsReloadStatus.get(dataSetId) ? true : false;
+                    dsReloadStatus.set(dataSetId, false);
+                }
+                buildRender(widget, needReload);
                 widget.loading = true;
                 if ($scope.board.layout.type == 'timeline') {
                     if (row.show) {
@@ -277,21 +303,20 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
         $scope.relationFilters = [];
 
         //将点击的参数赋值到看板上的参数中
+        //"{"targetId":3,"params":[{"targetField":"logo","value":"iphone"},{"targetField":"logo1","value":"上海市"}]}" targetField==param.name
         if(location.href.split("?")[1]) {
             var urlParam = JSON.parse(decodeURI(location.href.split("?")[1]));
             _.each($scope.board.layout.rows, function (row) {
                 _.each(row.params, function (param) {
-                    var p;
-                    _.each(param.col, function (col) {
-                        p = _.find(urlParam.params, function (param) {
-                            return param.targetField.split("(")[0] == col.column && param.targetField.split("(")[1].split(")")[0] == col.datasetId;
-                        });
+                    var p = _.find(urlParam.params, function (e) {
+                        return e.targetField == param.name;
                     });
                     if(p){
                         param.values.push(p.value);
                     }
                 });
             });
+            location.href = location.href.split("?")[0];
         }
 
         _.each($scope.board.layout.rows, function (row) {
@@ -319,8 +344,11 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
                 });
             });
         });
-
+        updateParamTitle();
         //将点击的参数赋值到relationFilters中
+        if(_.isUndefined($("#relations").val())){
+            return;
+        }
         var relations = JSON.parse($("#relations").val());
         for(var i=0;i<relations.length;i++){
             if(relations[i].targetId && relations[i].params && relations[i].params.length>0){
@@ -344,13 +372,12 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
         _.each($scope.board.layout.rows, function (row) {
             _.each(row.widgets, function (w) {
                 try {
-                    chartService.realTimeRender(w.realTimeTicket, injectFilter(w.widget).data);
+                    chartService.realTimeRender(w.realTimeTicket, injectFilter(w.widget).data, null, null, w, true);
                 } catch (e) {
                     console.error(e);
                 }
             });
         });
-        updateParamTitle();
     };
 
     $scope.paramToString = function (row) {
@@ -430,7 +457,7 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
         widget.render = function (content, optionFilter, scope) {
             //百度地图特殊处理
             var charType = widget.widget.data.config.chart_type;
-            if(charType == 'markLineMapBmap' || charType == 'heatMapBmap' || charType == 'scatterMapBmap'){
+            if(charType == 'chinaMapBmap'){
                 chartService.render(content, widget.widget.data, optionFilter, scope, true);
                 widget.loading = false;
             } else {
@@ -473,6 +500,10 @@ cBoard.controller('dashboardViewCtrl', function ($timeout, $rootScope, $scope, $
             config: angular.toJson($scope.boardParams)
         }).success(function (response) {
         });
+    };
+
+    $scope.editBoard = function() {
+        $state.go('config.board', {boardId: $stateParams.id});
     };
 
     $scope.deleteBoardParam = function (index) {

@@ -5,15 +5,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.apache.poi.hssf.record.crypto.Biff8EncryptionKey;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.cboard.pojo.DashboardJob;
 import org.cboard.services.persist.PersistContext;
 import org.cboard.services.persist.excel.XlsProcessService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Authenticator;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MailService {
+
+    private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private XlsProcessService xlsProcessService;
@@ -54,7 +58,10 @@ public class MailService {
 
     private Function<Object, PersistContext> getPersistBoard(List<PersistContext> persistContextList) {
         return e -> persistContextList.stream()
-                .filter(board -> board.getDashboardId() == ((JSONObject) e).getLong("id"))
+                .filter(board -> {
+                    Long boardId = board.getDashboardId();
+                    return boardId != null && boardId.equals((((JSONObject) e).getLong("id")));
+                })
                 .findFirst().get();
     }
 
@@ -73,12 +80,16 @@ public class MailService {
         ByteArrayOutputStream baos = null;
         if (workbookList != null && workbookList.size() > 0) {
             HSSFWorkbook workbook = xlsProcessService.dashboardToXls(workbookList);
+            if (StringUtils.isNotEmpty(config.getString("xlspwd"))) {
+                Biff8EncryptionKey.setCurrentUserPassword(config.getString("xlspwd"));
+            }
             baos = new ByteArrayOutputStream();
             try {
                 workbook.write(baos);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error("", e);
             }
+
         }
 
 
@@ -97,7 +108,7 @@ public class MailService {
                 String cid = email.embed(ds, e.getDashboardId() + ".jpg");
                 sb.append("<img src='cid:").append(cid).append("'></img></br>");
             } catch (EmailException e1) {
-                e1.printStackTrace();
+                LOG.error("", e);
             }
         });
         email.setHtmlMsg(sb.append("</html>").toString());

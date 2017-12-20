@@ -42,27 +42,43 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
     private static final Logger LOG = LoggerFactory.getLogger(UdspSqlProvider.class);
 
     @Value("${dataprovider.resultLimit:300000}")
-    private int resultLimit = 30000;
+    private int resultLimit;
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.UDSP_SERVERS'|translate}}", required = true, placeholder = "<ip>:<port>", type = DatasourceParameter.Type.Input, order = 1)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.UDSP_SERVERS'|translate}}",
+            required = true,
+            placeholder = "<ip>:<port>",
+            type = DatasourceParameter.Type.Input,
+            order = 1)
     private String UDSP_SERVERS = "udspServers";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.USERNAME'|translate}}", type = DatasourceParameter.Type.Input, order = 2)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.USERNAME'|translate}}",
+            type = DatasourceParameter.Type.Input,
+            order = 2)
     private String USERNAME = "username";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.PASSWORD'|translate}}", type = DatasourceParameter.Type.Password, order = 3)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.PASSWORD'|translate}}",
+            type = DatasourceParameter.Type.Password,
+            order = 3)
     private String PASSWORD = "password";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.AGGREGATABLE_PROVIDER'|translate}}", type = DatasourceParameter.Type.Checkbox, order = 4)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.AGGREGATABLE_PROVIDER'|translate}}",
+            type = DatasourceParameter.Type.Checkbox,
+            order = 4)
     private String AGGREGATE_PROVIDER = "aggregateProvider";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SERVICE_NAME'|translate}}", required = true, type = QueryParameter.Type.Input, order = 1)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SERVICE_NAME'|translate}}",
+            required = true,
+            type = QueryParameter.Type.Input,
+            order = 1)
     private String SERVICE_NAME = "serviceName";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SQL_TEXT'|translate}}", required = true, type = QueryParameter.Type.TextArea, order = 2)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SQL_TEXT'|translate}}",
+            required = true,
+            type = QueryParameter.Type.TextArea,
+            order = 2)
     private String SQL = "sql";
 
-    private static final CacheManager<Map<String,String>> typeCahce = new HeapCacheManager<>();
+    private static final CacheManager<Map<String, String>> typeCahce = new HeapCacheManager<>();
 
     private DimensionConfigHelper dimensionConfigHelper;
 
@@ -122,6 +138,11 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
         List<Map<String, String>> results = getResults(getRequest());
         List<String[]> list = getHeaderAndDatas(results);
         return list.toArray(new String[][]{});
+    }
+
+    @Override
+    public void test() throws Exception {
+        getColumnInfos();
     }
 
     private List<Map<String, String>> getResults(SqlRequest request) {
@@ -236,7 +257,7 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
-            dimensionConfigHelper = new UdspSqlProvider.DimensionConfigHelper();
+            dimensionConfigHelper = new DimensionConfigHelper();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -316,7 +337,7 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
         Stream<DimensionConfig> r = config.getRows().stream();
         Stream<ConfigComponent> f = config.getFilters().stream();
         Stream<ConfigComponent> filters = Stream.concat(Stream.concat(c, r), f);
-        Map<String, String> types = getColumnType(request);
+        Map<String, String> types = getColumnType();
         Stream<DimensionConfig> dimStream = Stream.concat(config.getColumns().stream(), config.getRows().stream());
 
         String dimColsStr = assembleDimColumns(dimStream);
@@ -461,7 +482,7 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
     };
 
     private class DimensionConfigHelper {
-        private Map<String, String> types = getColumnType(getRequest());
+        private Map<String, String> types = getColumnType();
 
         private DimensionConfigHelper() throws Exception {
         }
@@ -504,11 +525,11 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
 
     /**
      * 获取列名及列类型
-     * @param request
+     *
      * @return
      * @throws Exception
      */
-    private Map<String, String> getColumnType(SqlRequest request) throws Exception {
+    private Map<String, String> getColumnType() throws Exception {
         Map<String, String> result = null;
         String key = getKey();
         result = typeCahce.get(key);
@@ -525,44 +546,44 @@ public class UdspSqlProvider extends DataProvider implements Aggregatable, Initi
         return Hashing.md5().newHasher().putString(JSONObject.toJSON(dataSource).toString() + JSONObject.toJSON(query).toString(), Charsets.UTF_8).hash().toString();
     }
 
-    class   DbTypes{
+    class DbTypes {
 
         //ORACLE
-        private static final String CHAR="CHAR";
-        private static final String CLOB="CLOB";
-        private static final String DATE="DATE";
-        private static final String NCLOB="NCLOB";
-        private static final String NVARCHAR2="NVARCHAR2";
-        private static final String VARCHAR2="VARCHAR2";
-        private static final String TIMESTAMP="TIMESTAMP";
-        private static final String TIMESTAMP_WITH_TIMEZONE="TIMESTAMP_WITH_TIMEZONE";
+        private static final String CHAR = "CHAR";
+        private static final String CLOB = "CLOB";
+        private static final String DATE = "DATE";
+        private static final String NCLOB = "NCLOB";
+        private static final String NVARCHAR2 = "NVARCHAR2";
+        private static final String VARCHAR2 = "VARCHAR2";
+        private static final String TIMESTAMP = "TIMESTAMP";
+        private static final String TIMESTAMP_WITH_TIMEZONE = "TIMESTAMP_WITH_TIMEZONE";
 
         //SQL SERVER
-        private static final String NCHAR="NCHAR";
-        private static final String TEXT="TEXT";
-        private static final String NTEXT="NTEXT";
-        private static final String XML="XML";
-        private static final String DATETIME="DATETIME";
-        private static final String SMALLDATETIME="SMALLDATETIME";
-        private static final String NVARCHAR="NVARCHAR";
+        private static final String NCHAR = "NCHAR";
+        private static final String TEXT = "TEXT";
+        private static final String NTEXT = "NTEXT";
+        private static final String XML = "XML";
+        private static final String DATETIME = "DATETIME";
+        private static final String SMALLDATETIME = "SMALLDATETIME";
+        private static final String NVARCHAR = "NVARCHAR";
 
         //DB2
-        private static final String CHARACTER="CHARACTER";
-        private static final String GRAPHIC="GRAPHIC";
-        private static final String LONGVARGRAPHIC="LONGVARGRAPHIC";
-        private static final String LONGVARCHAR="LONGVARCHAR";
-        private static final String TIME="TIME";
-        private static final String VARGRAPHIC="VARGRAPHIC";
+        private static final String CHARACTER = "CHARACTER";
+        private static final String GRAPHIC = "GRAPHIC";
+        private static final String LONGVARGRAPHIC = "LONGVARGRAPHIC";
+        private static final String LONGVARCHAR = "LONGVARCHAR";
+        private static final String TIME = "TIME";
+        private static final String VARGRAPHIC = "VARGRAPHIC";
 
         //MYSQL
-        private static final String ENUM ="ENUM";
-        private static final String SET ="SET";
-        private static final String YEAR="YEAR";
-        private static final String TINYTEXT="TINYTEXT";
+        private static final String ENUM = "ENUM";
+        private static final String SET = "SET";
+        private static final String YEAR = "YEAR";
+        private static final String TINYTEXT = "TINYTEXT";
 
         //IMPALA
-        private static final String VARCHAR="VARCHAR";
-        private static final String STRING="STRING";
+        private static final String VARCHAR = "VARCHAR";
+        private static final String STRING = "STRING";
         //HIVE
         //KYLIN
         //PGSQL

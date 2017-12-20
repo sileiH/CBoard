@@ -1,7 +1,7 @@
 /**
  * Created by yfyuan on 2016/10/11.
  */
-cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal, ModalUtils, $filter, chartService, $timeout, uuid4) {
+cBoard.controller('datasetCtrl', function ($scope, $http, $state, $stateParams, dataService, $uibModal, ModalUtils, $filter, chartService, $timeout, uuid4) {
 
     var translate = $filter('translate');
     $scope.optFlag = 'none';
@@ -9,7 +9,6 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
     $scope.curWidget = {};
     $scope.alerts = [];
     $scope.verify = {dsName: true};
-    $scope.loadFromCache = true;
     $scope.queryAceOpt = cbAcebaseOption;
     $scope.hierarchy = translate("CONFIG.DATASET.HIERARCHY");
     $scope.uuid4 = uuid4;
@@ -53,8 +52,12 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
         $http.get("dashboard/getDatasetList.do").success(function (response) {
             $scope.datasetList = response;
             $scope.searchNode();
+            if ($stateParams.id) {
+                $scope.editDs(_.find($scope.datasetList, function (ds) {
+                    return ds.id == $stateParams.id;
+                }));
+            }
         });
-
     };
 
     var getCategoryList = function () {
@@ -73,6 +76,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
         $scope.optFlag = 'new';
         $scope.curDataset = {data: {expressions: [], filters: [], schema: {dimension: [], measure: []}}};
         $scope.curWidget = {};
+        $scope.selects = [];
         cleanPreview();
     };
 
@@ -104,7 +108,8 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
             return ds.id == $scope.curDataset.data.datasource;
         });
         $scope.curWidget.query = $scope.curDataset.data.query;
-        $scope.loadData();
+        $scope.selects = ds.data.selects;
+        //$scope.loadData();
     };
 
     $scope.checkExist = function (column) {
@@ -243,7 +248,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
     };
 
     $scope.editFilterGroup = function (col) {
-        var selects = schemaToSelect($scope.curDataset.data.schema);
+        var columnObjs = schemaToSelect($scope.curDataset.data.schema);
         $uibModal.open({
             templateUrl: 'org/cboard/view/config/modal/filterGroup.html',
             windowTemplateUrl: 'org/cboard/view/util/modal/window.html',
@@ -255,7 +260,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
                 } else {
                     $scope.data = {group: '', filters: [], id: uuid4.generate()};
                 }
-                $scope.selects = selects;
+                $scope.columnObjs = columnObjs;
                 $scope.close = function () {
                     $uibModalInstance.close();
                 };
@@ -317,7 +322,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
         );
     };
 
-    var schemaToSelect = function (schema) {
+    var schemaToSelect = function (schema, rawSelects) {
         if (schema.selects) {
             return angular.copy(schema.selects);
         } else {
@@ -332,18 +337,25 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
                     selects.push(e);
                 }
             });
+            _.each(rawSelects, function(col) {
+               if (_.find(selects, function(o) { return col == o.column;}) === undefined) {
+                    selects.push({
+                        column: col
+                    });
+               }
+            });
             return angular.copy(selects);
         }
     };
 
     $scope.editExp = function (col) {
-        var selects = schemaToSelect($scope.curDataset.data.schema);
         var aggregate = [
             {name: 'sum', value: 'sum'},
             {name: 'count', value: 'count'},
             {name: 'avg', value: 'avg'},
             {name: 'max', value: 'max'},
-            {name: 'min', value: 'min'}
+            {name: 'min', value: 'min'},
+            {name: 'distinct', value: 'distinct'}
         ];
         var ok;
         var data = {expression: ''};
@@ -364,43 +376,33 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
                 col.alias = data.alias;
             }
         }
-
+        var columnObjs = schemaToSelect($scope.curDataset.data.schema, $scope.selects);
+        var expressions = $scope.curDataset.data.expressions;
         $uibModal.open({
             templateUrl: 'org/cboard/view/config/modal/exp.html',
             windowTemplateUrl: 'org/cboard/view/util/modal/window.html',
             backdrop: false,
             size: 'lg',
+            scope: $scope,
             controller: function ($scope, $uibModalInstance) {
                 $scope.data = data;
-                $scope.selects = selects;
+                $scope.columnObjs = columnObjs;
                 $scope.aggregate = aggregate;
+                $scope.expressions = expressions;
                 $scope.alerts = [];
-                $scope.expAceOpt = expEditorOptions(selects, aggregate);
-
+                $scope.expAceOpt = expEditorOptions($scope.selects, aggregate, function(_editor) {
+                    $scope.expAceEditor = _editor;
+                    $scope.expAceSession = _editor.getSession();
+                    _editor.focus();
+                });
                 $scope.close = function () {
                     $uibModalInstance.close();
                 };
                 $scope.addToken = function (str, agg) {
-                    var tc = document.getElementById("expression_area");
-                    var tclen = $scope.data.expression.length;
-                    tc.focus();
-                    var selectionIdx = 0;
-                    if (typeof document.selection != "undefined") {
-                        document.selection.createRange().text = str;
-                        selectionIdx = str.length - 1;
-                    }
-                    else {
-                        var a = $scope.data.expression.substr(0, tc.selectionStart);
-                        var b = $scope.data.expression.substring(tc.selectionStart, tclen);
-                        $scope.data.expression = a + str;
-                        selectionIdx = $scope.data.expression.length - 1;
-                        $scope.data.expression += b;
-                    }
-                    if (!agg) {
-                        selectionIdx++;
-                    }
-                    tc.selectionStart = selectionIdx;
-                    tc.selectionEnd = selectionIdx;
+                    var editor = $scope.expAceEditor;
+                    editor.session.insert(editor.getCursorPosition(), str);
+                    editor.focus();
+                    if (agg) editor.getSelection().moveCursorLeft();
                 };
                 $scope.verify = function () {
                     $scope.alerts = [];
@@ -415,6 +417,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
                         ModalUtils.alert(translate('CONFIG.WIDGET.ALIAS') + translate('COMMON.NOT_EMPTY'), "modal-warning", "lg");
                         return;
                     }
+                    $scope.data.expression = $scope.expAceSession.getValue();
                     ok($scope.data);
                     $uibModalInstance.close();
                 };
@@ -469,7 +472,12 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
         });
     };
 
-    $scope.loadData = function () {
+    $scope.loadData = function (reload) {
+
+        if (reload != true) {
+            reload = false;
+        }
+
         cleanPreview();
         $scope.loading = true;
 
@@ -477,7 +485,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
             datasource: $scope.datasource.id,
             query: $scope.curWidget.query,
             datasetId: null,
-            reload: !$scope.loadFromCache,
+            reload: reload,
             callback: function (dps) {
                 $scope.loading = false;
                 $scope.toChartDisabled = false;
@@ -506,6 +514,7 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
                         values: []
                     });
                 });
+                $scope.curDataset.data.selects = $scope.selects;
             }
         });
     };
@@ -552,12 +561,19 @@ cBoard.controller('datasetCtrl', function ($scope, $http, dataService, $uibModal
 
     $scope.editNode = function () {
         if (!checkTreeNode("edit")) return;
+        var selectedNode = jstree_GetSelectedNodes(treeID)[0];
+        $state.go('config.dataset', {id: selectedNode.id}, {notify: false});
         $scope.editDs(getSelectedDataSet());
     };
 
     $scope.deleteNode = function () {
         if (!checkTreeNode("delete")) return;
         $scope.deleteDs(getSelectedDataSet());
+    };
+    $scope.showInfo = function () {
+        if (!checkTreeNode("info")) return;
+        var content = getSelectedDataSet();
+        ModalUtils.info(content,"modal-info", "lg");
     };
     $scope.searchNode = function () {
         var para = {dsName: '', dsrName: ''};

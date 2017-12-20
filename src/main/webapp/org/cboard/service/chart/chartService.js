@@ -6,8 +6,8 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                                          chartSankeyService, chartTableService, chartKpiService, chartRadarService,
                                          chartMapService, chartScatterService, chartGaugeService, chartWordCloudService,
                                          chartTreeMapService, chartAreaMapService, chartHeatMapCalendarService, chartHeatMapTableService,
-                                         chartLiquidFillService, chartMarkLineMapService, chartHeatMapService, chartMarkLineMapBmapService,
-                                         chartHeatMapBmapService, chartScatterMapService, chartScatterMapBmapService, chartContrastService) {
+                                         chartLiquidFillService, chartContrastService, chartChinaMapService, chartChinaMapBmapService,
+                                         chartRelationService ) {
 
         this.render = function (containerDom, widget, optionFilter, scope, reload, persist, relations) {
             var deferred = $q.defer();
@@ -86,7 +86,7 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                         };
                     }
                 } finally {
-                    if (widget.config.chart_type == 'markLineMapBmap' || widget.config.chart_type == 'heatMapBmap' || widget.config.chart_type == 'scatterMapBmap') {
+                    if (widget.config.chart_type == 'chinaMapBmap') {
                         chart.render(containerDom, option, scope, persist, data.drill);
                     } else {
                         deferred.resolve(chart.render(containerDom, option, scope, persist, data.drill, relations, widget.config));
@@ -96,18 +96,27 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
             return deferred.promise;
         };
 
-        this.realTimeRender = function (realTimeTicket, widget, optionFilter, scope) {
+        this.realTimeRender = function (realTimeTicket, widget, optionFilter, scope, widgetWraper, isParamEvent) {
             if (!realTimeTicket) {
                 return;
             }
             var chart = getChartServices(widget.config);
-            dataService.getDataSeries(widget.datasource, widget.query, widget.datasetId, widget.config, function (data) {
+
+            if (isParamEvent && widgetWraper) {
+                widgetWraper.loading = true;
+            }
+
+            var callback = function (data) {
                 var option = chart.parseOption(data);
                 if (optionFilter) {
                     optionFilter(option);
                 }
                 realTimeTicket(option, data.drill ? data.drill.config : null);
-            });
+                if (widgetWraper) {
+                    widgetWraper.loading = false;
+                }
+            };
+            dataService.getDataSeries(widget.datasource, widget.query, widget.datasetId, widget.config, callback, true);
         };
 
         var getChartServices = function (chartConfig) {
@@ -158,28 +167,20 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                 case 'heatMapTable':
                     chart = chartHeatMapTableService;
                     break;
-                case 'markLineMap':
-                    chart = chartMarkLineMapService;
-                     break;
                 case 'liquidFill':
                     chart = chartLiquidFillService;
                     break;
-                case 'heatMap':
-                    chart = chartHeatMapService;
-                    break;
-                case 'markLineMapBmap':
-                    chart = chartMarkLineMapBmapService;
-                    break;
-                case 'heatMapBmap':
-                    chart = chartHeatMapBmapService;
-                    break;
                 case 'contrast':
                     chart = chartContrastService;
-                case 'scatterMap':
-                    chart = chartScatterMapService;
                     break;
-                case 'scatterMapBmap':
-                    chart = chartScatterMapBmapService;
+                case 'chinaMap':
+                    chart = chartChinaMapService;
+                    break;
+                case 'chinaMapBmap':
+                    chart = chartChinaMapBmapService;
+                    break;
+                case 'relation':
+                    chart = chartRelationService;
                     break;
             }
             return chart;

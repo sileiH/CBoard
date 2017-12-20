@@ -31,25 +31,52 @@ public class UdspNoSqlProvider extends DataProvider {
     @Value("${dataprovider.resultLimit:300000}")
     private int resultLimit;
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.UDSP_SERVERS'|translate}}", required = true, placeholder = "<ip>:<port>", type = DatasourceParameter.Type.Input, order = 1)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.UDSP_SERVERS'|translate}}",
+            required = true,
+            placeholder = "<ip>:<port>",
+            type = DatasourceParameter.Type.Input,
+            order = 1)
     private String UDSP_SERVERS = "udspServers";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.USERNAME'|translate}}", type = DatasourceParameter.Type.Input, order = 2)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.USERNAME'|translate}}",
+            type = DatasourceParameter.Type.Input,
+            order = 2)
     private String USERNAME = "username";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.PASSWORD'|translate}}", type = DatasourceParameter.Type.Password, order = 3)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.UDSP.PASSWORD'|translate}}",
+            type = DatasourceParameter.Type.Password,
+            order = 3)
     private String PASSWORD = "password";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SERVICE_NAME'|translate}}", required = true, type = QueryParameter.Type.Input, order = 1)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.SERVICE_NAME'|translate}}",
+            required = true,
+            type = QueryParameter.Type.Input,
+            order = 1)
     private String SERVICE_NAME = "serviceName";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.JSON_TEXT'|translate}}", required = true, placeholder = "exemple: {field1:1111,field2:'test'}", type = QueryParameter.Type.TextArea2, order = 2)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.JSON_TEXT'|translate}}",
+            required = true,
+            placeholder = "exemple: {field1:1111,field2:'test'}",
+            type = QueryParameter.Type.TextArea2,
+            order = 2)
     private String JSON = "json";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.PAGE_INDEX'|translate}}", required = true, pageType = "dataset,widget", value = "1", placeholder = "default value is 1", type = QueryParameter.Type.Number, order = 3)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.PAGE_INDEX'|translate}}",
+            required = true,
+            pageType = "dataset,widget",
+            value = "1",
+            placeholder = "default value is 1",
+            type = QueryParameter.Type.Number,
+            order = 3)
     private String PAGE_INDEX = "pageIndex";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.PAGE_SIZE'|translate}}", required = true, pageType = "dataset,widget", value = "10", placeholder = "default value is 10", type = QueryParameter.Type.Number, order = 4)
+    @QueryParameter(label = "{{'DATAPROVIDER.UDSP.PAGE_SIZE'|translate}}",
+            required = true,
+            pageType = "dataset,widget",
+            value = "10",
+            placeholder = "default value is 10",
+            type = QueryParameter.Type.Number,
+            order = 4)
     private String PAGE_SIZE = "pageSize";
 
     private String getUrl() {
@@ -107,8 +134,13 @@ public class UdspNoSqlProvider extends DataProvider {
         return list.toArray(new String[][]{});
     }
 
+    @Override
+    public void test() throws Exception {
+        getData();
+    }
+
     private List<Map<String, String>> getResults(NoSqlRequest request) {
-        NoSqlClient client = ConsumerClientFactory.createCustomClient(NoSqlClient.class,getUrl());
+        NoSqlClient client = ConsumerClientFactory.createCustomClient(NoSqlClient.class, getUrl());
         SyncPackResponse response = null;
         try {
             response = client.syncStart(request);
@@ -137,7 +169,7 @@ public class UdspNoSqlProvider extends DataProvider {
         return list;
     }
 
-    private List<String[]> getDatas(List<Map<String, String>> results, String[] columns){
+    private List<String[]> getDatas(List<Map<String, String>> results, String[] columns) {
         List<String[]> list = new LinkedList<>();
         for (int i = 0; i < results.size(); i++) {
             list.add(getValues(columns, results.get(i)));

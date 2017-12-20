@@ -6,6 +6,7 @@
              dnd-drop="curWidget.config.values[0].cols.length == 0 ? item:false"
              dnd-inserted="dndTransfer.toCol(curWidget.config.values[0].cols,index,item,type)"
              dnd-allowed-types="['measure','select','col','exp']"
+             ng-class="{highlight: targetHighlight.value}"
              style="min-height: 35px;height: auto;padding: 0px">
             <div class="dndPlaceholder sort-highlight"
                  style="height: 24px; width: 93px;margin: 3px 3px;display: inline-block;vertical-align: middle;">
@@ -28,10 +29,10 @@
                         </button>
                         <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
                             <li ng-if="!isDsExpression(o)">
-                                <a href="#" ng-click="editExp(o)">{{'COMMON.EDIT'|translate}}</a>
+                                <a ng-click="editExp(o)">{{'COMMON.EDIT'|translate}}</a>
                             </li>
                             <li>
-                                <a href="#" ng-click="editVFilter(o)">{{'CONFIG.WIDGET.FILTER'|translate}}</a>
+                                <a ng-click="editVFilter(o)">{{'CONFIG.WIDGET.FILTER'|translate}}</a>
                             </li>
                         </ul>
                     </div>
@@ -55,7 +56,7 @@
                                 <a ng-click="o.aggregate_type=a.value">{{a.name+'('+o.col+')'}}</a>
                             </li>
                             <li>
-                                <a href="#" ng-click="editVFilter(o)">{{'CONFIG.WIDGET.FILTER'|translate}}</a>
+                                <a ng-click="editVFilter(o)">{{'CONFIG.WIDGET.FILTER'|translate}}</a>
                             </li>
                         </ul>
                     </div>
