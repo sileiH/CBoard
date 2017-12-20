@@ -181,6 +181,8 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
 
         AggDataResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, AggDataResponse.class);
         List<List<String>> datas = response.getDatas();
+        List<String[]> newDatas = new ArrayList<>();
+        datas.forEach(e -> newDatas.add(e.toArray(new String[]{})));
 
         // recreate a dimension stream
         Stream<DimensionConfig> dimStream = Stream.concat(config.getColumns().stream(), config.getRows().stream());
@@ -188,12 +190,13 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         int dimSize = dimensionList.size();
         dimensionList.addAll(config.getValues().stream().map(ColumnIndex::fromValueConfig).collect(Collectors.toList()));
         IntStream.range(0, dimensionList.size()).forEach(j -> dimensionList.get(j).setIndex(j));
-        datas.forEach(row -> {
+        newDatas.forEach(row -> {
             IntStream.range(0, dimSize).forEach(i -> {
-                if (row.get(i) == null) row.add(NULL_STRING);
+                if (row[i] == null) row[i] = NULL_STRING;
             });
         });
-        String[][] result = datas.toArray(new String[][]{});
+
+        String[][] result = newDatas.toArray(new String[][]{});
         return new AggregateResult(dimensionList, result);
     }
 
