@@ -415,6 +415,10 @@
       "JSON_TEXT": "JSON查询语句",
       "PAGE_INDEX": "分页页号",
       "PAGE_SIZE": "每页行数"
+    },
+    "GRMP":{
+      "GRMP_SERVERS": "GRMP服务",
+      "BIZ_TABLE_NAME": "业务表名称"
     }
   },
   "CROSS_TABLE":{

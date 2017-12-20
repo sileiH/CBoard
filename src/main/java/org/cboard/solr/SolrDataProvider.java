@@ -45,34 +45,76 @@ public class SolrDataProvider extends DataProvider implements Aggregatable, Init
     @Value("${dataprovider.resultLimit:300000}")
     private int resultLimit;
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.SOLR.SOLR_SERVERS'|translate}}", required = true, placeholder = "<ip>:<port>,[<ip>:<port>]...", type = DatasourceParameter.Type.Input, order = 1)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.SOLR.SOLR_SERVERS'|translate}}",
+            required = true,
+            placeholder = "<ip>:<port>,[<ip>:<port>]...",
+            type = DatasourceParameter.Type.Input,
+            order = 1)
     private String SOLR_SERVERS = "solrServers";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.POOLEDCONNECTION'|translate}}", type = DatasourceParameter.Type.Checkbox, order = 2)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.POOLEDCONNECTION'|translate}}",
+            type = DatasourceParameter.Type.Checkbox,
+            order = 2)
     private String POOLED = "pooled";
 
-    @DatasourceParameter(label = "{{'DATAPROVIDER.AGGREGATABLE_PROVIDER_SOLR'|translate}}", type = DatasourceParameter.Type.Checkbox, order = 3)
+    @DatasourceParameter(label = "{{'DATAPROVIDER.AGGREGATABLE_PROVIDER_SOLR'|translate}}",
+            type = DatasourceParameter.Type.Checkbox,
+            order = 3)
     private String AGGREGATE_PROVIDER = "aggregateProvider";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.COLLECTION'|translate}}", required = true, pageType = "test,dataset,widget", type = QueryParameter.Type.Input, order = 1)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.COLLECTION'|translate}}",
+            required = true,
+            pageType = "test,dataset,widget",
+            type = QueryParameter.Type.Input,
+            order = 1)
     private String COLLECTION = "collection";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.Q'|translate}}", required = true, pageType = "dataset,widget", value = "*:*", placeholder = "*:*|<fieldName>:<fieldValue>[ <AND|OR> <fieldName>:<fieldValue>]...", type = QueryParameter.Type.TextArea2, order = 2)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.Q'|translate}}",
+            required = true,
+            pageType = "dataset,widget",
+            value = "*:*",
+            placeholder = "*:*|<fieldName>:<fieldValue>[ <AND|OR> <fieldName>:<fieldValue>]...",
+            type = QueryParameter.Type.TextArea2,
+            order = 2)
     private String Q = "q";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.FQ'|translate}}", pageType = "dataset,widget", placeholder = "<fieldName>:<fieldValue>[,<fieldName>:<fieldValue>]...", type = QueryParameter.Type.Input, order = 3)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.FQ'|translate}}",
+            pageType = "dataset,widget",
+            placeholder = "<fieldName>:<fieldValue>[,<fieldName>:<fieldValue>]...",
+            type = QueryParameter.Type.Input,
+            order = 3)
     private String FQ = "fq";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.SORT'|translate}}", pageType = "dataset,widget", placeholder = "<fieldName> <ASC|DESC>[,<fieldName> <ASC|DESC>]...", type = QueryParameter.Type.Input, order = 4)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.SORT'|translate}}",
+            pageType = "dataset,widget",
+            placeholder = "<fieldName> <ASC|DESC>[,<fieldName> <ASC|DESC>]...",
+            type = QueryParameter.Type.Input,
+            order = 4)
     private String SORT = "sort";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.START'|translate}}", required = true, pageType = "dataset,widget", value = "0", placeholder = "default value is 0", type = QueryParameter.Type.Number, order = 5)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.START'|translate}}",
+            required = true,
+            pageType = "dataset,widget",
+            value = "0",
+            placeholder = "default value is 0",
+            type = QueryParameter.Type.Number,
+            order = 5)
     private String START = "start";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.ROWS'|translate}}", required = true, pageType = "dataset,widget", value = "10", placeholder = "default value is 10", type = QueryParameter.Type.Number, order = 6)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.ROWS'|translate}}",
+            required = true,
+            pageType = "dataset,widget",
+            value = "10",
+            placeholder = "default value is 10",
+            type = QueryParameter.Type.Number,
+            order = 6)
     private String ROWS = "rows";
 
-    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.FL'|translate}}", pageType = "dataset,widget", placeholder = "*|<fieldName>[,<fieldName>]...", type = QueryParameter.Type.Input, order = 7)
+    @QueryParameter(label = "{{'DATAPROVIDER.SOLR.FL'|translate}}",
+            pageType = "dataset,widget",
+            placeholder = "*|<fieldName>[,<fieldName>]...",
+            type = QueryParameter.Type.Input,
+            order = 7)
     private String FL = "fl";
 
     private static Map<String, SolrServerPoolFactory> poolMap;
@@ -160,7 +202,8 @@ public class SolrDataProvider extends DataProvider implements Aggregatable, Init
     }
 
     private String getCacheKey() {
-        return Hashing.md5().newHasher().putString(JSONObject.toJSON(dataSource).toString() + JSONObject.toJSON(query).toString(), Charsets.UTF_8).hash().toString();
+        return Hashing.md5().newHasher().putString(JSONObject.toJSON(dataSource).toString()
+                + JSONObject.toJSON(query).toString(), Charsets.UTF_8).hash().toString();
     }
 
     private SolrClient getSolrServer(String solrServers, String collectionName) {
@@ -189,10 +232,10 @@ public class SolrDataProvider extends DataProvider implements Aggregatable, Init
     }
 
     public String[][] getSolrData() throws Exception {
-        String solrServers = dataSource.get("solrServers");
+        String solrServers = dataSource.get(SOLR_SERVERS);
         if (StringUtils.isBlank(solrServers))
             throw new CBoardException("Datasource config Solr Servers can not be empty.");
-        String collectionName = query.get("collection");
+        String collectionName = query.get(COLLECTION);
         if (StringUtils.isBlank(collectionName))
             throw new CBoardException("Collection can not be empty.");
 
