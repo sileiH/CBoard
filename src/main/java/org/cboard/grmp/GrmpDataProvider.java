@@ -182,7 +182,9 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         AggDataResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, AggDataResponse.class);
         List<List<String>> datas = response.getDatas();
         List<String[]> newDatas = new ArrayList<>();
-        datas.forEach(e -> newDatas.add(e.toArray(new String[]{})));
+        if (datas != null && datas.size() > 0) {
+            datas.forEach(e -> newDatas.add(e.toArray(new String[]{})));
+        }
 
         // recreate a dimension stream
         Stream<DimensionConfig> dimStream = Stream.concat(config.getColumns().stream(), config.getRows().stream());
