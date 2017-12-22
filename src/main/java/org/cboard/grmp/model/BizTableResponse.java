@@ -1,30 +1,29 @@
 package org.cboard.grmp.model;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by JunjieM on 2017-12-19.
  */
-public class AggDataResponse {
-    private List<List<String>> datas;
+public class BizTableResponse {
+    private List<BizTable> tables;
     private boolean status = true;
     private String message = "SUCCEED";
 
-    public AggDataResponse() {
+    public BizTableResponse() {
     }
 
-    public AggDataResponse(List<List<String>> datas) {
-        this.datas = datas;
+    public BizTableResponse(List<BizTable> tables) {
+        this.tables = tables;
     }
 
-    public AggDataResponse(boolean status, String message) {
+    public BizTableResponse(boolean status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public AggDataResponse(List<List<String>> datas, boolean status, String message) {
-        this.datas = datas;
+    public BizTableResponse(List<BizTable> tables, boolean status, String message) {
+        this.tables = tables;
         this.status = status;
         this.message = message;
     }
@@ -45,11 +44,11 @@ public class AggDataResponse {
         this.message = message;
     }
 
-    public List<List<String>> getDatas() {
-        return datas;
+    public List<BizTable> getTables() {
+        return tables;
     }
 
-    public void setDatas(List<List<String>> datas) {
-        this.datas = datas;
+    public void setTables(List<BizTable> tables) {
+        this.tables = tables;
     }
 }

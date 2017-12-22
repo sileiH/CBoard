@@ -418,7 +418,8 @@
     },
     "GRMP":{
       "GRMP_SERVERS": "GRMP服务",
-      "BIZ_TABLE_NAME": "业务表名称"
+      "BIZ_TABLE_NAME": "业务表名称",
+      "SHOW_DICT_VALUE": "显示字典值"
     }
   },
   "CROSS_TABLE":{

@@ -9,12 +9,9 @@ import org.cboard.dataprovider.annotation.DatasourceParameter;
 import org.cboard.dataprovider.annotation.ProviderName;
 import org.cboard.dataprovider.annotation.QueryParameter;
 import org.cboard.dataprovider.config.AggConfig;
-import org.cboard.dataprovider.config.CompositeConfig;
-import org.cboard.dataprovider.config.ConfigComponent;
 import org.cboard.dataprovider.config.DimensionConfig;
 import org.cboard.dataprovider.result.AggregateResult;
 import org.cboard.dataprovider.result.ColumnIndex;
-import org.cboard.dto.ViewAggConfig;
 import org.cboard.exception.CBoardException;
 import org.cboard.grmp.model.*;
 import org.cboard.grmp.util.GrmpHttpUtil;
@@ -24,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -47,9 +46,37 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
 
     @QueryParameter(label = "{{'DATAPROVIDER.GRMP.BIZ_TABLE_NAME'|translate}}",
             required = true,
-            type = QueryParameter.Type.Input,
+            pageType = "dataset,widget",
+            optionsMethod = "initBizTableNameArray",
+            type = QueryParameter.Type.Select,
             order = 1)
     private String BIZ_TABLE_NAME = "bizTableName";
+
+    @QueryParameter(label = "{{'DATAPROVIDER.GRMP.SHOW_DICT_VALUE'|translate}}",
+            pageType = "dataset,widget",
+            type = QueryParameter.Type.Checkbox,
+            order = 2)
+    private String SHOW_DICT_VALUE = "showDictValue";
+
+    /**
+     * 获取业务表列表
+     *
+     * @return
+     */
+    private String[] initBizTableNameArray() {
+        LOG.debug("Execute GrmpDataProvider.initBizTableNameArray() Start!");
+        String serviceUrl = getUrl() + "/getBizTables";
+
+        BizTableResponse response = GrmpHttpUtil.requestGrmp("", serviceUrl, BizTableResponse.class);
+        if (!response.isStatus()) throw new CBoardException(response.getMessage());
+
+        List<BizTable> bizTables = response.getTables();
+        String[] array = new String[]{};
+        for (int i = 0, l = bizTables.size(); i < l; i++) {
+            array[i] = bizTables.get(i).getName();
+        }
+        return array;
+    }
 
     private String getUrl() {
         String grmpServers = dataSource.get(GRMP_SERVERS);
@@ -66,6 +93,11 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
             throw new CBoardException("Dataset config BizTableName can not be empty.");
         LOG.info("Biz Table Name: " + bizTableName);
         return bizTableName;
+    }
+
+    public boolean getShowDictValue() {
+        String v = query.get(SHOW_DICT_VALUE);
+        return v != null && "true".equals(v);
     }
 
     /**
@@ -92,7 +124,7 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
     @Override
     public void test() throws Exception {
         LOG.debug("Execute GrmpDataProvider.test() Start!");
-        getColumn();
+        initBizTableNameArray();
     }
 
     /**
@@ -118,6 +150,7 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         LOG.info("JSON:" + json);
 
         DimValResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, DimValResponse.class);
+        if (!response.isStatus()) throw new Exception(response.getMessage());
 
         List<String> values = response.getValues();
         if (values == null || values.size() == 0) return null;
@@ -147,8 +180,8 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         LOG.info("JSON:" + json);
 
         BizColumnResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, BizColumnResponse.class);
+        if (!response.isStatus()) throw new Exception(response.getMessage());
 
-        if (response == null) return null;
         List<BizColumn> columns = response.getColumns();
         if (columns == null || columns.size() == 0) return null;
         List<String> list = new ArrayList<>();
@@ -172,14 +205,17 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         LOG.debug("Execute GrmpDataProvider.queryAggData() Start!");
         String serviceUrl = getUrl() + "/getAggDatas";
         String bizTableName = getBizTableName();
+        boolean showDictValue = getShowDictValue();
 
-        AggDataRequest request = new AggDataRequest(bizTableName, config);
+        AggDataRequest request = new AggDataRequest(bizTableName, config, showDictValue);
 
         JSONObject jsonObject = (JSONObject) JSON.toJSON(request);
         String json = jsonObject.toJSONString();
         LOG.info("JSON:" + json);
 
         AggDataResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, AggDataResponse.class);
+        if (!response.isStatus()) throw new Exception(response.getMessage());
+
         List<List<String>> datas = response.getDatas();
         List<String[]> newDatas = new ArrayList<>();
         if (datas != null && datas.size() > 0) {
@@ -188,10 +224,11 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
 
         // recreate a dimension stream
         Stream<DimensionConfig> dimStream = Stream.concat(config.getColumns().stream(), config.getRows().stream());
-        List<ColumnIndex> dimensionList = dimStream.map(ColumnIndex::fromDimensionConfig).collect(Collectors.toList());
+        List<ColumnIndex> dimensionList = dimStream.map(ColumnIndex::fromDimensionConfig).collect(Collectors.toList()); // 得到普通字段信息集合
         int dimSize = dimensionList.size();
-        dimensionList.addAll(config.getValues().stream().map(ColumnIndex::fromValueConfig).collect(Collectors.toList()));
-        IntStream.range(0, dimensionList.size()).forEach(j -> dimensionList.get(j).setIndex(j));
+        dimensionList.addAll(config.getValues().stream().map(ColumnIndex::fromValueConfig).collect(Collectors.toList())); // 添加聚合字段信息集合
+        IntStream.range(0, dimensionList.size()).forEach(j -> dimensionList.get(j).setIndex(j)); // 设置字段位置
+
         newDatas.forEach(row -> {
             IntStream.range(0, dimSize).forEach(i -> {
                 if (row[i] == null) row[i] = NULL_STRING;
@@ -221,9 +258,12 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         String json = jsonObject.toJSONString();
         LOG.info("发送的JSON:" + json);
 
-        AggDatasQuery query = GrmpHttpUtil.requestGrmp(json, serviceUrl, AggDatasQuery.class);
+        AggQueryResponse response = GrmpHttpUtil.requestGrmp(json, serviceUrl, AggQueryResponse.class);
+        if (!response.isStatus()) throw new Exception(response.getMessage());
 
-        LOG.info("Query:" + query.getQuery());
-        return query.getQuery();
+        String query = response.getQuery();
+        LOG.info("Query:" + query);
+        return query;
     }
+
 }
