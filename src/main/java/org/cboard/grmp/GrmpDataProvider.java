@@ -12,6 +12,7 @@ import org.cboard.dataprovider.config.AggConfig;
 import org.cboard.dataprovider.config.DimensionConfig;
 import org.cboard.dataprovider.result.AggregateResult;
 import org.cboard.dataprovider.result.ColumnIndex;
+import org.cboard.dataprovider.util.DPCommonUtils;
 import org.cboard.exception.CBoardException;
 import org.cboard.grmp.model.*;
 import org.cboard.grmp.util.GrmpHttpUtil;
@@ -217,26 +218,11 @@ public class GrmpDataProvider extends DataProvider implements Aggregatable {
         if (!response.isStatus()) throw new Exception(response.getMessage());
 
         List<List<String>> datas = response.getDatas();
-        List<String[]> newDatas = new ArrayList<>();
+        List<String[]> list = new ArrayList<>();
         if (datas != null && datas.size() > 0) {
-            datas.forEach(e -> newDatas.add(e.toArray(new String[]{})));
+            datas.forEach(e -> list.add(e.toArray(new String[]{})));
         }
-
-        // recreate a dimension stream
-        Stream<DimensionConfig> dimStream = Stream.concat(config.getColumns().stream(), config.getRows().stream());
-        List<ColumnIndex> dimensionList = dimStream.map(ColumnIndex::fromDimensionConfig).collect(Collectors.toList()); // 得到普通字段信息集合
-        int dimSize = dimensionList.size();
-        dimensionList.addAll(config.getValues().stream().map(ColumnIndex::fromValueConfig).collect(Collectors.toList())); // 添加聚合字段信息集合
-        IntStream.range(0, dimensionList.size()).forEach(j -> dimensionList.get(j).setIndex(j)); // 设置字段位置
-
-        newDatas.forEach(row -> {
-            IntStream.range(0, dimSize).forEach(i -> {
-                if (row[i] == null) row[i] = NULL_STRING;
-            });
-        });
-
-        String[][] result = newDatas.toArray(new String[][]{});
-        return new AggregateResult(dimensionList, result);
+        return DPCommonUtils.transform2AggResult(config, list);
     }
 
     /**
