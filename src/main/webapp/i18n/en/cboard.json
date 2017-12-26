@@ -418,7 +418,8 @@
     },
     "GRMP":{
       "GRMP_SERVERS": "GRMP Servers",
-      "BIZ_TABLE_NAME": "Biz Table Name"
+      "BIZ_TABLE_NAME": "Biz Table Name",
+      "SHOW_DICT_VALUE": "Show Dict Value"
     }
   },
   "CROSS_TABLE":{

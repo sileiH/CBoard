@@ -17,7 +17,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- *
+ * Created by JunjieM on 2017-12-11.
  */
 public class HttpUtils {
 

@@ -3,11 +3,12 @@ package org.cboard.grmp.model;
 import org.cboard.dataprovider.config.AggConfig;
 
 /**
- * Created by PC on 2017/12/13.
+ * Created by JunjieM on 2017-12-11.
  */
 public class AggDataRequest {
     private String bizTableName;
     private AggConfig aggConfig;
+    private boolean showDictValue = false;
 
     public AggDataRequest() {
     }
@@ -15,6 +16,20 @@ public class AggDataRequest {
     public AggDataRequest(String bizTableName, AggConfig aggConfig) {
         this.bizTableName = bizTableName;
         this.aggConfig = aggConfig;
+    }
+
+    public AggDataRequest(String bizTableName, AggConfig aggConfig, boolean showDictValue) {
+        this.bizTableName = bizTableName;
+        this.aggConfig = aggConfig;
+        this.showDictValue = showDictValue;
+    }
+
+    public boolean isShowDictValue() {
+        return showDictValue;
+    }
+
+    public void setShowDictValue(boolean showDictValue) {
+        this.showDictValue = showDictValue;
     }
 
     public String getBizTableName() {

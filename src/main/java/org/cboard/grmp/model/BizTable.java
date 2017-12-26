@@ -1,7 +1,7 @@
 package org.cboard.grmp.model;
 
 /**
- * 业务表
+ * Created by JunjieM on 2017-12-11.
  */
 public class BizTable {
     private String id; // 表ID

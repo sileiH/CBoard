@@ -1,7 +1,7 @@
 package org.cboard.grmp.model;
 
 /**
- * 业务表字段
+ * Created by JunjieM on 2017-12-19.
  */
 public class BizColumn {
     private String name; // 字段名称

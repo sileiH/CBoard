@@ -3,7 +3,7 @@ package org.cboard.grmp.model;
 import org.cboard.dataprovider.config.AggConfig;
 
 /**
- * Created by PC on 2017/12/13.
+ * Created by JunjieM on 2017-12-11.
  */
 public class DimValRequest {
     private String bizTableName;
