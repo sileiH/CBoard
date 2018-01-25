@@ -20,8 +20,6 @@ cBoard.service('chartGridService', function () {
 function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data, newValuesConfig) {
     var columnDefs = [],
         rowData = [];
-    console.log(chartConfig);
-    console.log(casted_values);
     var newValue = changeJsonToArr(newValuesConfig);
     var align;
     for (var i = 0; i < chartConfig.keys.length; i++) {
@@ -30,7 +28,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
             field: chartConfig.keys[i].col,
             enableRowGroup: true,
             enableValue: true,
-            rowGroup: true,
+            //rowGroup: true,
             cellStyle: {"text-align": (chartConfig.keys[i].align ? chartConfig.keys[i].align : 'center')}
         })
     }
@@ -42,12 +40,10 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
             map.push({});
             for (var j = 0; j < casted_values.length; j++) {
                 if (!map[i][casted_values[j][i] + "a"]) {
-                    //console.log(casted_values[j][i]);
                     map[i][casted_values[j][i] + "a"] = casted_values[j][i];
                 }
             }
         }
-        console.log(map);
         var getChildren = function (name, index) {
             index++;
             var new_arr = [];
@@ -100,18 +96,18 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         }
     }
 
-    for (var i = 0; i < aggregate_data[0].length; i++) {
+    for (var i = 0; i < casted_keys.length; i++) {
         var rowItem = {};
         for (var z = 0; z < chartConfig.keys.length; z++) {
             if (checkNumber(casted_keys[i][z])) {
-                rowItem[chartConfig.keys[z].col] = parseInt(casted_keys[i][z]);
+                rowItem[chartConfig.keys[z].col] = parseFloat(casted_keys[i][z]);
             } else {
                 rowItem[chartConfig.keys[z].col] = casted_keys[i][z];
             }
         }
         for (var j = 0; j < newValue.length; j++) {
             if (checkNumber(aggregate_data[j][i])) {
-                rowItem[newValue[j]] = parseInt(aggregate_data[j][i]);
+                rowItem[newValue[j]] = parseFloat(aggregate_data[j][i]);
             } else {
                 rowItem[newValue[j]] = aggregate_data[j][i];
             }
@@ -126,7 +122,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         enableSorting: true,
         animateRows: true,
         floatingFilter: true,
-        showToolPanel: true
+        showToolPanel: false
     }
     return gridOption;
 }
