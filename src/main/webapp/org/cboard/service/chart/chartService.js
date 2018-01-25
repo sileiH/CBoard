@@ -7,7 +7,7 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                                          chartMapService, chartScatterService, chartGaugeService, chartWordCloudService,
                                          chartTreeMapService, chartAreaMapService, chartHeatMapCalendarService, chartHeatMapTableService,
                                          chartLiquidFillService, chartContrastService, chartChinaMapService, chartChinaMapBmapService,
-                                         chartRelationService ) {
+                                         chartRelationService, chartGridService) {
 
         this.render = function (containerDom, widget, optionFilter, scope, reload, persist, relations) {
             var deferred = $q.defer();
@@ -88,6 +88,8 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                 } finally {
                     if (widget.config.chart_type == 'chinaMapBmap') {
                         chart.render(containerDom, option, scope, persist, data.drill);
+                    } else if (widget.config.chart_type == 'grid') {
+                        chart.render(containerDom, option, scope, persist);
                     } else {
                         deferred.resolve(chart.render(containerDom, option, scope, persist, data.drill, relations, widget.config));
                     }
@@ -181,6 +183,9 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                     break;
                 case 'relation':
                     chart = chartRelationService;
+                    break;
+                case 'grid':
+                    chart = chartGridService;
                     break;
             }
             return chart;
