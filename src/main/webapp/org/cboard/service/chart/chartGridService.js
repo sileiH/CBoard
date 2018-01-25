@@ -125,7 +125,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         enableSorting: true,
         animateRows: true,
         floatingFilter: true,
-        showToolPanel: true
+        showToolPanel: false
     }
     return gridOption;
 }

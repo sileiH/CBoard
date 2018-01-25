@@ -40230,7 +40230,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    PivotModePanel.prototype.createTemplate = function () {
 	        var localeTextFunc = this.gridOptionsWrapper.getLocaleTextFunc();
-	        return "<div class=\"ag-pivot-mode\">\n                <ag-checkbox class=\"ag-pivot-mode-select\" label=\"" + localeTextFunc('pivotMode', '中心模式') + "\"></ag-checkbox>\n            </div>";
+	        return "<div class=\"ag-pivot-mode\">\n                <ag-checkbox class=\"ag-pivot-mode-select\" label=\"" + localeTextFunc('pivotMode', '透视模式') + "\"></ag-checkbox>\n            </div>";
 	    };
 	    PivotModePanel.prototype.init = function () {
 	        this.setTemplate(this.createTemplate());
