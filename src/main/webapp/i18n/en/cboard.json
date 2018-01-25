@@ -147,7 +147,7 @@
       "FUNNEL": "Funnel",
       "SANKEY": "Sankey",
       "TABLE": "Table",
-      "GRID":"Crosstab",
+      "GRID":"Pivot Table",
       "KPI": "KPI",
       "PIE": "Pie",
       "LINE_BAR": "Line/Bar",
