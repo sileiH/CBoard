@@ -17,7 +17,7 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                 measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE')
             },
             {
-                name:translate('CONFIG.WIDGET.GRID'), value: 'grid', class: 'cGrid',
+                name: translate('CONFIG.WIDGET.GRID'), value: 'grid', class: 'cGrid',
                 row: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE'),
                 column: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
                 measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE')
