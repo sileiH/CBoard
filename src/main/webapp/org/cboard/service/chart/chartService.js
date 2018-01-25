@@ -3,11 +3,11 @@
  */
 'use strict';
 cBoard.service('chartService', function ($q, dataService, chartPieService, chartLineService, chartFunnelService,
-                                         chartSankeyService, chartTableService, chartKpiService, chartRadarService,
+                                         chartSankeyService, chartTableService, chartGridService, chartKpiService, chartRadarService,
                                          chartMapService, chartScatterService, chartGaugeService, chartWordCloudService,
                                          chartTreeMapService, chartAreaMapService, chartHeatMapCalendarService, chartHeatMapTableService,
                                          chartLiquidFillService, chartContrastService, chartChinaMapService, chartChinaMapBmapService,
-                                         chartRelationService, chartGridService) {
+                                         chartRelationService) {
 
         this.render = function (containerDom, widget, optionFilter, scope, reload, persist, relations) {
             var deferred = $q.defer();
@@ -136,6 +136,9 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                 case 'table':
                     chart = chartTableService;
                     break;
+                case 'grid':
+                    chart = chartGridService;
+                    break;
                 case 'funnel':
                     chart = chartFunnelService;
                     break;
@@ -183,9 +186,6 @@ cBoard.service('chartService', function ($q, dataService, chartPieService, chart
                     break;
                 case 'relation':
                     chart = chartRelationService;
-                    break;
-                case 'grid':
-                    chart = chartGridService;
                     break;
             }
             return chart;
