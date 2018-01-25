@@ -19,14 +19,18 @@ cBoard.service('chartGridService', function () {
 function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data, newValuesConfig) {
     var columnDefs = [],
         rowData = [];
+    console.log(chartConfig);
+    console.log(casted_values);
     var newValue = changeJsonToArr(newValuesConfig);
+    var align;
     for (var i = 0; i < chartConfig.keys.length; i++) {
         columnDefs.push({
             headerName: chartConfig.keys[i].col,
             field: chartConfig.keys[i].col,
             enableRowGroup: true,
             enableValue: true,
-            rowGroup: true
+            rowGroup: true,
+            cellStyle: {"text-align": (chartConfig.keys[i].align ? chartConfig.keys[i].align : 'center')}
         })
     }
     //如果含有列维
@@ -36,31 +40,36 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         for (var i = 0; i < casted_values[0].length; i++) {
             map.push({});
             for (var j = 0; j < casted_values.length; j++) {
-                if (!map[i][casted_values[j][i]]) {
-                    map[i][casted_values[j][i]] = casted_values[j][i];
+                if (!map[i][casted_values[j][i] + "a"]) {
+                    //console.log(casted_values[j][i]);
+                    map[i][casted_values[j][i] + "a"] = casted_values[j][i];
                 }
             }
         }
-        var getChildren = function (name,index) {
-            index ++;
+        console.log(map);
+        var getChildren = function (name, index) {
+            index++;
             var new_arr = [];
             if (index == map.length - 1) {
+                var cols_id = 0;
                 for (var j in map[index]) {
-                    var field = name + "-" + j;
+                    var field = name + "-" + map[index][j];
                     new_arr.push({
-                        headerName: j,
+                        headerName: map[index][j],
                         field: field,
-                        enableValue:true,
-                        enableRowGroup:true,
+                        enableValue: true,
+                        enableRowGroup: true,
+                        cellStyle: {"text-align": chartConfig.values[0].cols[cols_id].align ? chartConfig.values[0].cols[cols_id].align : 'center'}
                     })
+                    cols_id ++;
                 }
             } else {
                 for (var j in map[index]) {
-                    var field = name + "-" + j;
+                    var field = name + "-" + map[index][j];
                     new_arr.push({
-                        headerName: j,
-                        groupId:j,
-                        children:getChildren(field,index)
+                        headerName: map[index][j],
+                        groupId: map[index][j],
+                        children: getChildren(field, index)
                     })
                 }
             }
@@ -68,25 +77,24 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         }
         for (var i in map[0]) {
             var index = 0;
-            var name = i;
+            var name = map[0][i];
             arr.push({
-                headerName: i,
-                groupId: i,
-                children: getChildren(name,index)
+                headerName: map[0][i],
+                groupId: map[0][i],
+                children: getChildren(name, index)
             })
         }
         for (var i = 0; i < arr.length; i++) {
             columnDefs.push(arr[i]);
         }
-        console.log(arr);
-        console.log(columnDefs);
     } else {
         for (var i = 0; i < casted_values.length; i++) {
             columnDefs.push({
                 headerName: casted_values[i][0],
                 field: casted_values[i][0],
                 enableRowGroup: true,
-                enableValue: true
+                enableValue: true,
+                cellStyle: {"text-align": chartConfig.values[0].cols[i].align ? chartConfig.values[0].cols[i].align : 'center'}
             })
         }
     }
@@ -94,22 +102,21 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
     for (var i = 0; i < aggregate_data[0].length; i++) {
         var rowItem = {};
         for (var z = 0; z < chartConfig.keys.length; z++) {
-            if(checkNumber(casted_keys[i][z])){
+            if (checkNumber(casted_keys[i][z])) {
                 rowItem[chartConfig.keys[z].col] = parseInt(casted_keys[i][z]);
-            }else{
+            } else {
                 rowItem[chartConfig.keys[z].col] = casted_keys[i][z];
             }
         }
         for (var j = 0; j < newValue.length; j++) {
-            if(checkNumber(aggregate_data[j][i])){
+            if (checkNumber(aggregate_data[j][i])) {
                 rowItem[newValue[j]] = parseInt(aggregate_data[j][i]);
-            }else{
+            } else {
                 rowItem[newValue[j]] = aggregate_data[j][i];
             }
         }
         rowData.push(rowItem);
     }
-    console.log(rowData);
 
     var gridOption = {
         columnDefs: columnDefs,
@@ -117,7 +124,8 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         enableFilter: true,
         enableSorting: true,
         animateRows: true,
-        floatingFilter: true
+        floatingFilter: true,
+        showToolPanel: true
     }
     return gridOption;
 }
@@ -137,6 +145,7 @@ function changeJsonToArr(jsonData) {
     }
     return arr;
 }
+
 function checkNumber(theObj) {
     var reg = /^[0-9]+.?[0-9]*$/;
     if (reg.test(theObj)) {
