@@ -17,6 +17,12 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                 measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE')
             },
             {
+                name: translate('CONFIG.WIDGET.GRID'), value: 'grid', class: 'cGrid',
+                row: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
+                column: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
+                measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE')
+            },
+            {
                 name: translate('CONFIG.WIDGET.LINE_BAR'), value: 'line', class: 'cLine',
                 row: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE'),
                 column: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
@@ -133,7 +139,7 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
         ];
 
         $scope.chart_types_status = {
-            "line": true, "pie": true, "kpi": true, "table": true,
+            "line": true, "pie": true, "kpi": true, "table": true, "grid": true,
             "funnel": true, "sankey": true, "radar": true, "map": true,
             "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
             "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
@@ -224,6 +230,7 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
             pie: {keys: 2, groups: -1, filters: -1, values: 2},
             kpi: {keys: 0, groups: 0, filters: -1, values: 1},
             table: {keys: -1, groups: -1, filters: -1, values: -1},
+            grid: {keys: -1, groups: -1, filters: -1, values: -1},
             funnel: {keys: -1, groups: 0, filters: -1, values: 2},
             sankey: {keys: 2, groups: 2, filters: -1, values: 1},
             radar: {keys: 2, groups: -1, filters: -1, values: 2},
@@ -866,6 +873,9 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                             $scope.previewDivWidth = 6;
                             break;
                         case 'table':
+                            $scope.previewDivWidth = 12;
+                            break;
+                        case 'grid':
                             $scope.previewDivWidth = 12;
                             break;
                         case 'funnel':
