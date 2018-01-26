@@ -12,8 +12,7 @@ cBoard.service('chartGridService', function () {
     };
 
     this.parseOption = function (data) {
-        var gridOption = gridDataProcess(data.chartConfig, data.keys, data.series, data.data, data.seriesConfig);
-        return gridOption;
+        return gridDataProcess(data.chartConfig, data.keys, data.series, data.data, data.seriesConfig);
     };
 });
 

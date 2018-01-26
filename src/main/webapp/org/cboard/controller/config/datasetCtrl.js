@@ -616,21 +616,33 @@ cBoard.controller('datasetCtrl', function ($scope, $http, $state, $stateParams, 
 
     $scope.treeEventsObj = function () {
         var baseEventObj = jstree_baseTreeEventsObj({
-            ngScope: $scope, ngHttp: $http, ngTimeout: $timeout,
+            ngScope: $scope, ngHttp: $http, ngTimeout: $timeout, ModalUtils: ModalUtils,
             treeID: treeID, listName: "datasetList", updateUrl: updateUrl
         });
         return baseEventObj;
     }();
 
     $scope.doConfigParams = function () {
-        $http.get('dashboard/getConfigParams.do?type=' + $scope.datasource.type + '&datasourceId=' + $scope.datasource.id + '&page=dataset.html').then(function (response) {
+        $http.get('dashboard/getConfigParams.do', {
+            params: {
+                type: $scope.datasource.type,
+                datasourceId: $scope.datasource.id,
+                page: 'dataset.html'
+            }
+        }).then(function (response) {
             $scope.params = response.data;
         });
     };
 
     $scope.changeDs = function () {
         $scope.curWidget.query = {};
-        $http.get('dashboard/getConfigParams.do?type=' + $scope.datasource.type + '&datasourceId=' + $scope.datasource.id + '&page=dataset.html').then(function (response) {
+        $http.get('dashboard/getConfigParams.do', {
+            params: {
+                type: $scope.datasource.type,
+                datasourceId: $scope.datasource.id,
+                page: 'dataset.html'
+            }
+        }).then(function (response) {
             $scope.params = response.data;
             for (i in $scope.params) {
                 var name = $scope.params[i].name;

@@ -34,8 +34,6 @@ cBoard.service('chartLineService', function ($state, $window) {
             sum_data[j] = sum;
         }
 
-
-
         //主要用于判断是否要将折线起始点和x轴紧贴
         var line_type;
         for (var i = 0; i < aggregate_data.length; i++) {
@@ -112,7 +110,8 @@ cBoard.service('chartLineService', function ($state, $window) {
                 rotate: labelRotate
             }
         };
-        if(line_type == 'arealine' || line_type == 'stackline' || line_type == 'percentline'){
+        if(line_type == 'line' || line_type == 'arealine'
+            || line_type == 'stackline' || line_type == 'percentline'){
             categoryAxis.boundaryGap = false;
         }
 
