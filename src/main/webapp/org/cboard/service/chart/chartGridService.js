@@ -24,15 +24,16 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
     for (var i = 0; i < chartConfig.keys.length; i++) {
         columnDefs.push({
             headerName: chartConfig.keys[i].col,
-            field: chartConfig.keys[i].col,
+            field: removePoint(chartConfig.keys[i].col),
             enableRowGroup: true,
             enableValue: true,
+            enablePivot:true,
             //rowGroup: true,
             cellStyle: {"text-align": (chartConfig.keys[i].align ? chartConfig.keys[i].align : 'center')}
         })
     }
     //如果含有列维
-    if (chartConfig.groups.length > 0) {
+    if (chartConfig.groups.length > 0 && aggregate_data.length > 0) {
         var map = [];
         var arr = [];
         for (var i = 0; i < casted_values[0].length; i++) {
@@ -52,12 +53,14 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
                     var field = name + "-" + map[index][j];
                     new_arr.push({
                         headerName: map[index][j],
-                        field: field,
-                        enableValue: true,
+                        field: removePoint(field),
                         enableRowGroup: true,
+                        enableValue: true,
+                        enablePivot:true,
+                        filter: 'number',
                         cellStyle: {"text-align": chartConfig.values[0].cols[cols_id].align ? chartConfig.values[0].cols[cols_id].align : 'center'}
                     })
-                    cols_id ++;
+                    cols_id++;
                 }
             } else {
                 for (var j in map[index]) {
@@ -87,9 +90,11 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         for (var i = 0; i < casted_values.length; i++) {
             columnDefs.push({
                 headerName: casted_values[i][0],
-                field: casted_values[i][0],
+                field: removePoint(casted_values[i][0]),
                 enableRowGroup: true,
                 enableValue: true,
+                enablePivot:true,
+                filter: 'number',
                 cellStyle: {"text-align": chartConfig.values[0].cols[i].align ? chartConfig.values[0].cols[i].align : 'center'}
             })
         }
@@ -99,21 +104,20 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         var rowItem = {};
         for (var z = 0; z < chartConfig.keys.length; z++) {
             if (checkNumber(casted_keys[i][z])) {
-                rowItem[chartConfig.keys[z].col] = parseFloat(casted_keys[i][z]);
+                rowItem[removePoint(chartConfig.keys[z].col)] = parseFloat(casted_keys[i][z]);
             } else {
-                rowItem[chartConfig.keys[z].col] = casted_keys[i][z];
+                rowItem[removePoint(chartConfig.keys[z].col)] = casted_keys[i][z];
             }
         }
         for (var j = 0; j < newValue.length; j++) {
             if (checkNumber(aggregate_data[j][i])) {
-                rowItem[newValue[j]] = parseFloat(aggregate_data[j][i]);
+                rowItem[removePoint(newValue[j])] = parseFloat(aggregate_data[j][i]);
             } else {
-                rowItem[newValue[j]] = aggregate_data[j][i];
+                rowItem[removePoint(newValue[j])] = aggregate_data[j][i];
             }
         }
         rowData.push(rowItem);
     }
-
     var gridOption = {
         columnDefs: columnDefs,
         rowData: rowData,
@@ -121,7 +125,8 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         enableSorting: true,
         animateRows: true,
         floatingFilter: true,
-        showToolPanel: false
+        showToolPanel: false,
+        enableRangeSelection:true
     }
     return gridOption;
 }
@@ -148,5 +153,9 @@ function checkNumber(theObj) {
         return true;
     }
     return false;
+}
+//去除小数点，主要用于防止ag-Grid因为属性名含‘.’无法读取数据
+function  removePoint(str) {
+    return str.replace(/['.']/g,'');
 }
 
