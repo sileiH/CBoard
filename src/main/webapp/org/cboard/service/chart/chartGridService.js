@@ -135,8 +135,6 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
             checkboxSelection: isFirstColumn,
         }
     }
-    console.log(option);
-    console.log(gridOption);
     //设置option区域的功能
     for(var i in option){
         gridOption[i] = option[i];
