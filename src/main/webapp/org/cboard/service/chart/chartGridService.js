@@ -21,6 +21,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         rowData = [];
     var newValue = changeJsonToArr(newValuesConfig);
     var align;
+    var option = chartConfig.option;
     for (var i = 0; i < chartConfig.keys.length; i++) {
         columnDefs.push({
             headerName: chartConfig.keys[i].col,
@@ -126,7 +127,19 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         animateRows: true,
         floatingFilter: true,
         showToolPanel: false,
-        enableRangeSelection:true
+        enableRangeSelection:true,
+        rowSelection:'multiple',
+        suppressRowClickSelection:true,
+        defaultColDef:{
+            headerCheckboxSelection: isFirstColumn,
+            checkboxSelection: isFirstColumn,
+        }
+    }
+    console.log(option);
+    console.log(gridOption);
+    //设置option区域的功能
+    for(var i in option){
+        gridOption[i] = option[i];
     }
     return gridOption;
 }
@@ -157,5 +170,11 @@ function checkNumber(theObj) {
 //去除小数点，主要用于防止ag-Grid因为属性名含‘.’无法读取数据
 function  removePoint(str) {
     return str.replace(/['.']/g,'');
+}
+
+function isFirstColumn(params) {
+    var displayedColumns = params.columnApi.getAllDisplayedColumns();
+    var thisIsFirstColumn = displayedColumns[0] === params.column;
+    return thisIsFirstColumn;
 }
 
