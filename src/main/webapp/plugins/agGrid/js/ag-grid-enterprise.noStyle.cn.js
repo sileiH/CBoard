@@ -20626,12 +20626,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    filterOoo: '过滤值...',
 	    contains: '包含',
 	    notContains: '不包含',
-	    startsWith: 'Starts with',
-	    endsWith: 'Ends with',
+	    startsWith: '匹配开头',
+	    endsWith: '匹配结尾',
 	    searchOoo: '搜索...',
 	    selectAll: '选择全部',
-	    applyFilter: 'Apply Filter',
-	    clearFilter: 'Clear Filter'
+	    applyFilter: '开始过滤',
+	    clearFilter: '清空过滤'
 	};
 	/**
 	 * T(ype) The type of this filter. ie in DateFilter T=Date
