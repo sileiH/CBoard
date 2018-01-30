@@ -14,22 +14,35 @@
                         <div class="form-group col-md-4">
                             <label>
                                 <input type="checkbox" ng-model="curWidget.config.option.suppressMenuHide"
-                                       ng-init="curWidget.config.option.suppressMenuHide=false"> 是否一直显示菜单按钮
+                                       ng-init="curWidget.config.option.suppressMenuHide=false"> 是否显示菜单按钮
                             </label>
                         </div>
                         <div class="form-group col-md-4">
                             <label>
                                 <input type="checkbox" ng-model="curWidget.config.option.enableColResize"
-                                       ng-init="curWidget.config.option.enableColResize=false"> 是否可改变列宽
+                                       ng-init="curWidget.config.option.enableColResize=false"> 是否可拉伸列宽
                             </label>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" ng-model="curWidget.config.option.suppressRowClickSelection"
+                                           ng-init="curWidget.config.option.suppressRowClickSelection ? null : curWidget.config.option.suppressRowClickSelection=true">
+                                    是否禁止行选择功能
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="form-group col-md-4">
-                            <label class="col-md-4 control-label">行选择器</label>
+                            <label class="col-md-4 control-label">显示状态</label>
                             <div class="col-md-8">
-                                <select class="form-control" ng-model="curWidget.config.option.rowSelection">
-                                    <option value='' ng-checked="1">不开启</option>
+                                <select class="form-control" ng-model="curWidget.config.option.rowSelection"
+                                        ng-disabled="curWidget.config.option.suppressRowClickSelection">
                                     <option value="single">单行选择</option>
-                                    <option value="multiple">多行选择</option>
+                                    <option value="multiple" ng-selected = "1">多行选择</option>
                                 </select>
                             </div>
                         </div>
@@ -70,7 +83,7 @@
                     </div>
                     <div class="row">
                         <div class="form-group col-md-4">
-                            <label class="col-md-4 control-label">显示状态</label>
+                            <label class="col-md-4 control-label">分页大小</label>
                             <div class="col-md-8">
                                 <input class="form-control" ng-model="curWidget.config.option.paginationPageSize"
                                        ng-disabled="!curWidget.config.option.pagination">
