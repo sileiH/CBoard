@@ -16,8 +16,9 @@ CBoardGridRender.prototype.do = function (tall, persist, gridConfig) {
     };
 
     new agGrid.Grid(this.container[0], this.options);
-
-    this.options.columnApi.setColumnState(gridConfig);
+    if(gridConfig){
+        this.options.columnApi.setColumnState(gridConfig);
+    }
 
     $(this.container).css({
         height: tall + "px"

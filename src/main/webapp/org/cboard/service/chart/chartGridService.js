@@ -33,6 +33,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
             enableRowGroup: true,
             enableValue: true,
             enablePivot: true,
+            filter: 'text',
             //rowGroup: true,
             cellStyle: {"text-align": (chartConfig.keys[i].align ? chartConfig.keys[i].align : 'center')}
         })
@@ -62,7 +63,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
                         enableRowGroup: true,
                         enableValue: true,
                         enablePivot: true,
-                        filter: 'number',
+                        filter: 'text',
                         cellStyle: {"text-align": chartConfig.values[0].cols[cols_id].align ? chartConfig.values[0].cols[cols_id].align : 'center'}
                     })
                     cols_id++;
@@ -139,13 +140,13 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
             checkboxSelection: isFirstColumn,
         }
     }
+
     //设置option区域的功能
     for (var i in option) {
         gridOption[i] = option[i];
     }
     return gridOption;
 }
-
 function getJsonLength(jsonData) {
     var length = 0;
     for (var l in jsonData) {
