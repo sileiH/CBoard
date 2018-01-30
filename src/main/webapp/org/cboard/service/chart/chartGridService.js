@@ -1,19 +1,23 @@
 'use strict';
 cBoard.service('chartGridService', function () {
 
-    this.render = function (containerDom, option, scope, persist) {
+    this.gridOption;
+
+    this.render = function (containerDom, option, scope, persist, gridConfig) {
+        this.gridOption = option;
         if (option == null) {
             containerDom.html("<div class=\"alert alert-danger\" role=\"alert\">No Data!</div>");
             return;
         }
         var height;
         scope ? height = scope.myheight - 20 : null;
-        return new CBoardGridRender(containerDom, option).do(height, persist);
+        return new CBoardGridRender(containerDom, option).do(height, persist, gridConfig);
     };
 
     this.parseOption = function (data) {
         return gridDataProcess(data.chartConfig, data.keys, data.series, data.data, data.seriesConfig);
     };
+
 });
 
 function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data, newValuesConfig) {
@@ -21,13 +25,14 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         rowData = [];
     var newValue = changeJsonToArr(newValuesConfig);
     var align;
+    var option = chartConfig.option;
     for (var i = 0; i < chartConfig.keys.length; i++) {
         columnDefs.push({
             headerName: chartConfig.keys[i].col,
             field: removePoint(chartConfig.keys[i].col),
             enableRowGroup: true,
             enableValue: true,
-            enablePivot:true,
+            enablePivot: true,
             //rowGroup: true,
             cellStyle: {"text-align": (chartConfig.keys[i].align ? chartConfig.keys[i].align : 'center')}
         })
@@ -56,7 +61,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
                         field: removePoint(field),
                         enableRowGroup: true,
                         enableValue: true,
-                        enablePivot:true,
+                        enablePivot: true,
                         filter: 'number',
                         cellStyle: {"text-align": chartConfig.values[0].cols[cols_id].align ? chartConfig.values[0].cols[cols_id].align : 'center'}
                     })
@@ -93,7 +98,7 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
                 field: removePoint(casted_values[i][0]),
                 enableRowGroup: true,
                 enableValue: true,
-                enablePivot:true,
+                enablePivot: true,
                 filter: 'number',
                 cellStyle: {"text-align": chartConfig.values[0].cols[i].align ? chartConfig.values[0].cols[i].align : 'center'}
             })
@@ -126,7 +131,17 @@ function gridDataProcess(chartConfig, casted_keys, casted_values, aggregate_data
         animateRows: true,
         floatingFilter: true,
         showToolPanel: false,
-        enableRangeSelection:true
+        enableRangeSelection: true,
+        rowSelection: 'multiple',
+        suppressRowClickSelection: true,
+        defaultColDef: {
+            headerCheckboxSelection: isFirstColumn,
+            checkboxSelection: isFirstColumn,
+        }
+    }
+    //设置option区域的功能
+    for (var i in option) {
+        gridOption[i] = option[i];
     }
     return gridOption;
 }
@@ -154,8 +169,15 @@ function checkNumber(theObj) {
     }
     return false;
 }
+
 //去除小数点，主要用于防止ag-Grid因为属性名含‘.’无法读取数据
-function  removePoint(str) {
-    return str.replace(/['.']/g,'');
+function removePoint(str) {
+    return str.replace(/['.']/g, '');
+}
+
+function isFirstColumn(params) {
+    var displayedColumns = params.columnApi.getAllDisplayedColumns();
+    var thisIsFirstColumn = displayedColumns[0] === params.column;
+    return thisIsFirstColumn;
 }
 
