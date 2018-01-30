@@ -837,7 +837,7 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                     config: $scope.curWidget.config,
                     datasource: $scope.datasource ? $scope.datasource.id : null,
                     query: $scope.curWidget.query,
-                    datasetId: $scope.customDs ? undefined : $scope.curWidget.datasetId,
+                    datasetId: $scope.customDs ? undefined : $scope.curWidget.datasetId
                 });
                 $scope.loadingPre = false;
             } else {
