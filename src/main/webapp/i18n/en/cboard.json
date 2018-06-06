@@ -147,6 +147,7 @@
       "FUNNEL": "Funnel",
       "SANKEY": "Sankey",
       "TABLE": "Table",
+      "GRID":"Pivot Table",
       "KPI": "KPI",
       "PIE": "Pie",
       "DOUGHNUT": "Doughnut",

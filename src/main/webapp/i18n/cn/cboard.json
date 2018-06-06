@@ -147,6 +147,7 @@
       "FUNNEL": "漏斗图",
       "SANKEY": "桑基图",
       "TABLE": "表格",
+      "GRID":"透视表",
       "KPI": "指标卡",
       "PIE": "饼图",
       "DOUGHNUT": "环形图",
