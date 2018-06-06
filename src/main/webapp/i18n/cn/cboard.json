@@ -227,7 +227,8 @@
       "SCATTER_MAP":"散点地图",
       "CHINA_MAP":"中国地图（本地）",
       "CHINA_MAP_BMAP":"中国地图（百度）",
-      "RELATION": "关系图"
+      "RELATION": "关系图",
+      "WORLD_MAP": "世界地图"
     },
     "DASHBOARD": {
       "DASHBOARD": "看板",
@@ -269,6 +270,11 @@
       "ONE_MINUT": "1分钟",
       "ONE_HOUR": "1小时",
       "ONE_DAY": "1天",
+      "FILTER_TYPE": "过滤类型",
+      "GTE_LTE": "[a,b]",
+      "GT_LTE": "(a,b]",
+      "GTE_LT": "[a,b)",
+      "GT_LT": "(a,b)",
       "MAIN_NODE": "主节点",
       "SUB_NODE": "子节点",
       "ADD_MAIN_NODE": "添加主节点",
@@ -277,6 +283,7 @@
       "TITLE": "标题",
       "NEW_GRID_LAYOUT": "新建网格布局",
       "NEW_TIMELINE_LAYOUT": "新建时间轴布局",
+      "NEW_COCKPIT_LAYOUT":"新建全屏监控布局",
       "VALUE_FORMMAT_ALERT": "只有日期类型需要格式化",
       "AUTOMATIC_REFRESH_SWITCH": "自动刷新切换",
       "REMOVE_EMPTY_LINES": "清除空行",

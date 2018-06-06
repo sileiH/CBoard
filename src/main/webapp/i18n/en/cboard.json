@@ -227,7 +227,8 @@
       "SCATTER_MAP":"Scatter Map",
       "CHINA_MAP":"China Map (Local)",
       "CHINA_MAP_BMAP":"China Map (Bmap)",
-      "RELATION": "Relation"
+      "RELATION": "Relation",
+      "WORLD_MAP": "World Map"
     },
     "DASHBOARD": {
       "CATEGORY": "Category",
@@ -269,6 +270,11 @@
       "ONE_MINUT": "1 Minute",
       "ONE_HOUR": "1 Hour",
       "ONE_DAY": "1 Day",
+      "FILTER_TYPE": "Filter Type",
+      "GTE_LTE": "[a,b]",
+      "GT_LTE": "(a,b]",
+      "GTE_LT": "[a,b)",
+      "GT_LT": "(a,b)",
       "MAIN_NODE": "Main Node",
       "SUB_NODE": "Sub Node",
       "ADD_MAIN_NODE": "Add Main Node",
@@ -277,6 +283,7 @@
       "TITLE": "Title",
       "NEW_GRID_LAYOUT": "New grid layout",
       "NEW_TIMELINE_LAYOUT": "New timeline layout",
+      "NEW_COCKPIT_LAYOUT":"New cockpit layout",
       "VALUE_FORMMAT_ALERT": "Only date type need format",
       "AUTOMATIC_REFRESH_SWITCH": "Automatic refresh switch",
       "REMOVE_EMPTY_LINES": "Remove empty lines",
