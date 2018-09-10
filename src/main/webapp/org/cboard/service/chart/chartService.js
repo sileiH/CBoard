@@ -7,7 +7,7 @@ cBoard.service('chartService', function($q, dataService, chartPieService, chartL
   chartMapService, chartScatterService, chartGaugeService, chartWordCloudService,
   chartTreeMapService, chartAreaMapService, chartHeatMapCalendarService, chartHeatMapTableService,
   chartLiquidFillService, chartContrastService, chartChinaMapService, chartChinaMapBmapService,
-  chartRelationService, chartWorldMapService) {
+  chartRelationService, chartWorldMapService, chartGridService) {
 
   this.render = function(containerDom, widget, optionFilter, scope, reload, persist, relations, isCockpit) {
       if (isCockpit) {
@@ -190,6 +190,9 @@ cBoard.service('chartService', function($q, dataService, chartPieService, chartL
       case 'worldMap':
         chart = chartWorldMapService;
         break;
+      case 'grid':
+          chart = chartGridService;
+          break;
     }
     return chart;
   };

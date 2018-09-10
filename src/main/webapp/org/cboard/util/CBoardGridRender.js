@@ -16,7 +16,7 @@ CBoardGridRender.prototype.do = function (tall, persist, gridConfig) {
     };
 
     new agGrid.Grid(this.container[0], this.options);
-    if(gridConfig){
+    if(gridConfig && !$.isEmptyObject(gridConfig.config)){
         this.options.columnApi.setColumnState(gridConfig);
     }
 
