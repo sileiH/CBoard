@@ -135,6 +135,12 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                 row: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_2'),
                 column: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_2'),
                 measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1')
+            },
+            {
+                name: translate('CONFIG.WIDGET.WORLD_MAP'), value: 'worldMap', class: 'cWorldMap',
+                row: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1_MORE'),
+                column: translate('CONFIG.WIDGET.TIPS_DIM_NUM_0_MORE'),
+                measure: translate('CONFIG.WIDGET.TIPS_DIM_NUM_1')
             }
         ];
 
@@ -143,7 +149,8 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
             "funnel": true, "sankey": true, "radar": true, "map": true,
             "scatter": true, "gauge": true, "wordCloud": true, "treeMap": true,
             "heatMapCalendar": true, "heatMapTable": true, "liquidFill": true,
-            "areaMap": true, "contrast": true, "chinaMap": true, "chinaMapBmap": true, "relation": true
+            "areaMap": true, "contrast": true,"chinaMap":true,"chinaMapBmap":true,
+            "relation":true, "worldMap": true
         };
 
         $scope.value_series_types = [
@@ -170,6 +177,12 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
             {name: 'min', value: 'min'},
             {name: 'distinct', value: 'distinct'}
         ];
+
+        $scope.value_pie_types = [
+            {name: translate('CONFIG.WIDGET.PIE'), value: 'pie'},
+            {name: translate('CONFIG.WIDGET.DOUGHNUT'), value: 'doughnut'},
+            {name: translate('CONFIG.WIDGET.COXCOMB'), value: 'coxcomb'}
+        ]
 
         $scope.kpi_styles = [
             {name: translate('CONFIG.WIDGET.AQUA'), value: 'bg-aqua'},
@@ -243,9 +256,10 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
             heatMapTable: {keys: 2, groups: 2, filters: -1, values: 1},
             liquidFill: {keys: 0, groups: 0, filters: -1, values: 1},
             contrast: {keys: 1, groups: 0, filters: -1, values: 2},
-            chinaMap: {keys: 2, groups: -1, filters: -1, values: 2},
-            chinaMapBmap: {keys: 2, groups: -1, filters: -1, values: 2},
-            relation: {keys: 2, groups: 2, filters: -1, values: 1}
+            chinaMap:{keys: 2, groups: -1, filters: -1, values: 2},
+            chinaMapBmap:{keys: 2, groups: -1, filters: -1, values: 2},
+            relation: {keys: 2, groups: 2, filters: -1, values: 1},
+            worldMap: {keys: 2, groups: -1, filters: -1, values: 1}
         };
 
         $scope.switchLiteMode = function (mode) {
@@ -652,6 +666,18 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                         v.type = 'value';
                     });
                     break;
+                case 'pie':
+                    $scope.curWidget.config.values.push({name: '', cols: []});
+                    _.each(oldConfig.values, function (v) {
+                        _.each(v.cols, function (c) {
+                            $scope.curWidget.config.values[0].cols.push(c);
+                        });
+                    });
+                    _.each($scope.curWidget.config.values, function (v) {
+                        v.series_type = 'pie';
+                        v.type = 'value';
+                    });
+                    break;
                 case 'kpi':
                     $scope.curWidget.config.values.push({name: '', cols: []});
                     _.each(oldConfig.values, function (v) {
@@ -931,6 +957,15 @@ cBoard.controller('widgetCtrl', function ($scope, $state, $stateParams, $http, $
                 cols: []
             });
         };
+
+        $scope.add_pie_value = function () {
+            $scope.curWidget.config.values.push({
+                name: '',
+                series_type: 'pie',
+                type: 'value',
+                cols: []
+            });
+        }
 
         $scope.add_china_map_value = function () {
             $scope.curWidget.config.values.push({

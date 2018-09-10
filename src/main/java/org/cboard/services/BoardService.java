@@ -19,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -57,6 +56,9 @@ public class BoardService {
                 continue;
             }
             JSONArray widgets = o.getJSONArray("widgets");
+            if(widgets == null){
+                break;
+            }
             for (Object w : widgets) {
                 JSONObject ww = (JSONObject) w;
                 Long widgetId = ww.getLong("widgetId");

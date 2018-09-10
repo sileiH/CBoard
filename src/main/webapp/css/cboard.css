@@ -57,6 +57,7 @@
     font-weight: normal;
     font-size: 10px;
     padding: 3px 0px;
+    background: white;
 }
 
 .tableView th {
@@ -179,6 +180,8 @@
 .cChinaMapBmap.disabled{ background-image: url(../imgs/chinaMapBmap.png); }
 .cRelation{ background-image: url(../imgs/relation-active.png); }
 .cRelation.disabled{ background-image: url(../imgs/relation.png); }
+.cWorldMap{ background-image: url(../imgs/worldMap-active.png);}
+.cWorldMap.disabled{ background-image: url(../imgs/worldMap.png);}
 
 .chart-type a.active{
     background-color: #FFF;
